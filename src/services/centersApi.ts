@@ -37,11 +37,14 @@ export const centersApi = {
     try {
       const res = await api.get<any>(endpoint);
       const rawList = Array.isArray(res) ? res : (res?.results || []);
-      if (rawList.length > 0) {
+      if (rawList && rawList.length > 0) {
         return rawList.map(mapDjangoCenterToLearningCenter);
       }
-      throw new Error('Empty');
-    } catch (err) {
+      if (Array.isArray(rawList)) {
+        return rawList.map(mapDjangoCenterToLearningCenter);
+      }
+      return MOCK_CENTERS;
+    } catch {
       console.info(`[centersApi] GET ${endpoint} fallback.`);
       if (city && city !== 'all') {
         return MOCK_CENTERS.filter(c => c.city.toLowerCase() === city.toLowerCase());
@@ -55,7 +58,7 @@ export const centersApi = {
       const data = await api.get<any>(API_ENDPOINTS.CENTERS.BY_ID(id));
       if (data) return mapDjangoCenterToLearningCenter(data);
       throw new Error('Not found');
-    } catch (err) {
+    } catch {
       return MOCK_CENTERS.find(c => c.id === id) || MOCK_CENTERS[0] || null;
     }
   },

@@ -9,7 +9,7 @@ export const adminApi = {
       const data = await api.get<User[]>(API_ENDPOINTS.ADMIN.USERS);
       if (Array.isArray(data) && data.length > 0) return data;
       throw new Error('Empty');
-    } catch (err) {
+    } catch {
       console.info('[adminApi] GET users fallback.');
       return Object.values(MOCK_USERS);
     }
@@ -43,7 +43,7 @@ export const adminApi = {
   deleteUser: async (id: string): Promise<{ success: boolean }> => {
     try {
       return await api.delete<{ success: boolean }>(API_ENDPOINTS.ADMIN.USER_BY_ID(id));
-    } catch (err) {
+    } catch {
       return { success: true };
     }
   },
@@ -53,7 +53,7 @@ export const adminApi = {
       const data = await api.get<PaymentTransaction[]>(API_ENDPOINTS.ADMIN.PAYMENTS);
       if (Array.isArray(data) && data.length > 0) return data;
       throw new Error('Empty');
-    } catch (err) {
+    } catch {
       console.info('[adminApi] GET payments fallback.');
       return MOCK_PAYMENTS;
     }
@@ -64,7 +64,7 @@ export const adminApi = {
       const data = await api.get<Course[]>(API_ENDPOINTS.ADMIN.COURSES);
       if (Array.isArray(data) && data.length > 0) return data;
       throw new Error('Empty');
-    } catch (err) {
+    } catch {
       console.info('[adminApi] GET courses fallback.');
       return MOCK_COURSES;
     }
@@ -75,7 +75,7 @@ export const adminApi = {
       const data = await api.get<PlatformAnalytics>(API_ENDPOINTS.ADMIN.ANALYTICS);
       if (data) return data;
       throw new Error('Empty');
-    } catch (err) {
+    } catch {
       console.info('[adminApi] GET analytics fallback.');
       return MOCK_ANALYTICS;
     }
@@ -84,7 +84,7 @@ export const adminApi = {
   blockUser: async (id: string): Promise<{ success: boolean }> => {
     try {
       return await api.post<{ success: boolean }>(API_ENDPOINTS.ADMIN.USER_BLOCK(id), {});
-    } catch (err) {
+    } catch {
       return { success: true };
     }
   }

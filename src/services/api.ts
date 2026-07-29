@@ -1,4 +1,4 @@
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://169.58.72.177';
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? (import.meta.env.DEV ? '' : 'http://169.58.72.177');
 
 export const getAuthToken = (): string | null => {
   return localStorage.getItem('eduqash_token');
@@ -34,7 +34,9 @@ export async function request<T>(endpoint: string, options: RequestOptions = {})
     config.body = JSON.stringify(data);
   }
 
-  const url = `${API_BASE_URL.replace(/\/$/, '')}/${endpoint.replace(/^\//, '')}`;
+  const cleanBase = API_BASE_URL ? API_BASE_URL.replace(/\/$/, '') : '';
+  const cleanEndpoint = endpoint.replace(/^\//, '');
+  const url = cleanBase ? `${cleanBase}/${cleanEndpoint}` : `/${cleanEndpoint}`;
 
   try {
     const response = await fetch(url, config);

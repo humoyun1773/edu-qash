@@ -34,11 +34,14 @@ export const coursesApi = {
     try {
       const res = await api.get<any>(endpoint);
       const rawList = Array.isArray(res) ? res : (res?.results || []);
-      if (rawList.length > 0) {
+      if (rawList && rawList.length > 0) {
         return rawList.map(mapDjangoCourseToCourse);
       }
-      throw new Error('No items');
-    } catch (err) {
+      if (Array.isArray(rawList)) {
+        return rawList.map(mapDjangoCourseToCourse);
+      }
+      return MOCK_COURSES;
+    } catch {
       console.info(`[coursesApi] GET ${endpoint} fallback to demo courses.`);
       if (category && category !== 'all') {
         return MOCK_COURSES.filter(c => c.category.toLowerCase() === category.toLowerCase());
@@ -52,7 +55,7 @@ export const coursesApi = {
       const data = await api.get<any>(API_ENDPOINTS.COURSES.BY_ID(id));
       if (data) return mapDjangoCourseToCourse(data);
       throw new Error('Not found');
-    } catch (err) {
+    } catch {
       return MOCK_COURSES.find(c => c.id === id) || MOCK_COURSES[0] || null;
     }
   },

@@ -24,7 +24,7 @@ export const CertificateVerifyPage: React.FC = () => {
     } else {
       setLoading(false);
     }
-  }, []);
+  }, [searchId]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
