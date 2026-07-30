@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { studentService } from '../constants/student.service';
 import type { StudentEnrolledCourse, StudentTestResultItem, UpdateStudentProfilePayload } from '../constants/student.type';
 import type { CertificateItem } from '../constants/certificates.type';
@@ -14,8 +14,11 @@ export const useStudent = () => {
   const [results, setResults] = useState<StudentTestResultItem[]>(() => getCached<StudentTestResultItem[]>(CACHE_KEY_RESULTS, []));
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const fetchedRef = useRef(false);
 
-  const fetchStudentData = useCallback(async () => {
+  const fetchStudentData = useCallback(async (force = false) => {
+    if (fetchedRef.current && !force) return;
+    fetchedRef.current = true;
     setLoading(true);
     setError(null);
     try {
@@ -56,7 +59,7 @@ export const useStudent = () => {
     results,
     loading,
     error,
-    refetch: fetchStudentData,
+    refetch: () => fetchStudentData(true),
     updateProfile
   };
 };

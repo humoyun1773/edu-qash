@@ -18,12 +18,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ searchQuery, setSearch
       <div className="absolute top-1/2 left-5 w-72 h-72 bg-pink-500/15 dark:bg-pink-500/20 rounded-full blur-[110px] pointer-events-none animate-float-reverse" />
 
       <div className="relative z-10 text-center space-y-8 max-w-4xl mx-auto">
-        {/* Top Floating Badge */}
-        <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 border border-indigo-500/30 text-indigo-600 dark:text-indigo-300 text-xs font-black uppercase tracking-wider shadow-lg shadow-indigo-500/10 backdrop-blur-xl animate-fade-down">
-          <Sparkles className="w-4 h-4 text-indigo-500 dark:text-indigo-400 animate-spin-slow" />
-          <span>O‘zbekistondagi №1 Zamonaviy Ta’lim va LMS Platformasi</span>
-        </div>
-
         {/* Main Title */}
         <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight leading-[1.08] text-slate-900 dark:text-white font-display animate-fade-up">
           Bilim Oling, O‘quv Markazlarni Toping va{' '}

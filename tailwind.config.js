@@ -6,7 +6,20 @@ export default {
   ],
   darkMode: 'class',
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        // Body — Inter (Notion, Linear, Vercel)
+        sans:    ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+        // Display / Headings — Syne (bold, geometric)
+        display: ['Syne', 'Inter', 'sans-serif'],
+        // Mono — JetBrains Mono (badges, code)
+        mono:    ['JetBrains Mono', 'Fira Code', 'Consolas', 'monospace'],
+      },
+      letterSpacing: {
+        tightest: '-0.04em',
+        tighter:  '-0.025em',
+      },
+    },
   },
   plugins: [],
 }

@@ -54,25 +54,84 @@ export const ModeratorDashboard: React.FC = () => {
         activeTab={moderatorTab}
         onSelectTab={setModeratorTab}
         tabs={moderatorTabs}
-        accentGradient="from-indigo-600 to-violet-600"
+        accentGradient="from-indigo-600 via-purple-600 to-pink-600"
       />
 
       {/* MAIN CONTENT PANEL */}
-      <div className="flex-1 min-w-0 space-y-6">
+      <div className="flex-1 min-w-0 space-y-8">
+        {/* TOP OVERVIEW CARDS */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="relative overflow-hidden p-6 rounded-3xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800 backdrop-blur-xl shadow-xl hover:border-emerald-500/40 transition-all duration-300 group">
+            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+              <CheckSquare className="w-20 h-20 text-emerald-500" />
+            </div>
+            <div className="flex items-center gap-4 mb-3">
+              <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400">
+                <CheckSquare className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Kutilayotgan Kurslar</p>
+                <h4 className="text-3xl font-black text-slate-900 dark:text-white font-display">{pendingContent.length}</h4>
+              </div>
+            </div>
+            <div className="flex items-center text-xs text-emerald-600 dark:text-emerald-400 font-bold pt-3 border-t border-slate-100 dark:border-slate-800">
+              <Clock className="w-4 h-4 mr-1.5" />
+              <span>Tekshiruv kutilmoqda</span>
+            </div>
+          </div>
+
+          <div className="relative overflow-hidden p-6 rounded-3xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800 backdrop-blur-xl shadow-xl hover:border-amber-500/40 transition-all duration-300 group">
+            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+              <ShieldAlert className="w-20 h-20 text-amber-500" />
+            </div>
+            <div className="flex items-center gap-4 mb-3">
+              <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400">
+                <ShieldAlert className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Tushgan E'tirozlar</p>
+                <h4 className="text-3xl font-black text-slate-900 dark:text-white font-display">{reports.length}</h4>
+              </div>
+            </div>
+            <div className="flex items-center text-xs text-amber-600 dark:text-amber-400 font-bold pt-3 border-t border-slate-100 dark:border-slate-800">
+              <AlertTriangle className="w-4 h-4 mr-1.5" />
+              <span>Shikoyatlar ro'yxati</span>
+            </div>
+          </div>
+
+          <div className="relative overflow-hidden p-6 rounded-3xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800 backdrop-blur-xl shadow-xl hover:border-indigo-500/40 transition-all duration-300 group sm:col-span-2 lg:col-span-1">
+            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+              <Sparkles className="w-20 h-20 text-indigo-500" />
+            </div>
+            <div className="flex items-center gap-4 mb-3">
+              <div className="p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400">
+                <Sparkles className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Moderatsiya Tizimi</p>
+                <h4 className="text-3xl font-black text-slate-900 dark:text-white font-display">Aktiv</h4>
+              </div>
+            </div>
+            <div className="flex items-center text-xs text-indigo-600 dark:text-indigo-400 font-bold pt-3 border-t border-slate-100 dark:border-slate-800">
+              <span>Platforma filtratsiyasi faol</span>
+            </div>
+          </div>
+        </div>
+
         {/* SETTINGS TAB */}
         {moderatorTab === 'settings' && <DashboardSettings />}
 
         {/* CONTENT MODERATION TAB */}
         {moderatorTab === 'content' && (
-          <div className="p-6 sm:p-10 rounded-3xl bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl border border-white/40 dark:border-slate-800/80 space-y-8 shadow-2xl shadow-indigo-500/5 transition-all">
+          <div className="p-6 sm:p-10 rounded-3xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800 space-y-8 shadow-xl transition-all">
             {/* Sarlavha Paneli */}
-            <div className="flex items-center justify-between border-b border-slate-200/80 dark:border-slate-800/80 pb-5">
+            <div className="flex items-center justify-between border-b border-slate-200/80 dark:border-slate-800 pb-5">
               <div className="flex items-center gap-3">
                 <div className="p-3 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shadow-sm">
                   <CheckSquare className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+                  <h3 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white font-display">
                     Kurslar va Kontent Moderatsiyasi
                   </h3>
                   <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">
@@ -98,161 +157,143 @@ export const ModeratorDashboard: React.FC = () => {
                 </span>
               </div>
             ) : pendingContent.length === 0 ? (
-              <div className="text-center py-16 border-2 border-dashed border-slate-200/80 dark:border-slate-800 rounded-3xl bg-slate-50/50 dark:bg-slate-950/30 space-y-2">
-                <div className="p-4 rounded-full bg-slate-100 dark:bg-slate-800 w-16 h-16 mx-auto flex items-center justify-center text-slate-400">
-                  <Sparkles className="w-8 h-8 opacity-60 text-emerald-500" />
+              <div className="text-center py-16 space-y-4">
+                <div className="w-16 h-16 mx-auto rounded-3xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center border border-emerald-500/20 shadow-lg">
+                  <CheckSquare className="w-8 h-8" />
                 </div>
-                <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300">
-                  Moderatsiyada materiallar yo'q
-                </h4>
-                <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
-                  Barcha yangi kontentlar ko'rib chiqilgan yoki hozircha kutilayotgan arizalar yo'q.
-                </p>
+                <div className="space-y-1">
+                  <h4 className="text-lg font-bold text-slate-900 dark:text-white">
+                    Barcha kontentlar tekshirilgan!
+                  </h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
+                    Hozircha moderatsiyadan o'tishi kerak bo'lgan yangi kurslar yo'q.
+                  </p>
+                </div>
               </div>
             ) : (
-              <div className="space-y-4">
-                {pendingContent.map((item) => {
-                  const isItemProcessing = processingId === item.id;
-
-                  return (
-                    <div
-                      key={item.id}
-                      className="p-5 rounded-2xl bg-white/80 dark:bg-slate-950/60 backdrop-blur-md border border-slate-200/70 dark:border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-5 shadow-lg shadow-slate-500/5 hover:border-indigo-500/40 transition-all group"
-                    >
-                      <div className="space-y-2 flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="px-2.5 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider bg-gradient-to-r from-indigo-500/10 to-violet-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
-                            {item.type}
-                          </span>
-                        </div>
-                        <h4 className="text-base font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-                          {item.title}
-                        </h4>
-                        <div className="flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
-                          <span className="flex items-center gap-1">
-                            <User className="w-3.5 h-3.5 text-indigo-500" />
-                            {item.submittedBy}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Clock className="w-3.5 h-3.5 text-slate-400" />
-                            {item.submittedAt}
-                          </span>
-                        </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {pendingContent.map((item) => (
+                  <div
+                    key={item.id}
+                    className="group p-6 rounded-3xl bg-slate-50/70 dark:bg-slate-950/40 hover:bg-white dark:hover:bg-slate-800/90 border border-slate-200/80 dark:border-slate-800 transition-all duration-300 hover:shadow-xl space-y-5 flex flex-col justify-between"
+                  >
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="px-3 py-1 text-[10px] font-extrabold rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 uppercase tracking-wider border border-indigo-500/20">
+                          {item.type || 'Kurs'}
+                        </span>
+                        <span className="text-xs text-slate-400 flex items-center gap-1">
+                          <Clock className="w-3.5 h-3.5" />
+                          {item.createdAt || 'Yangi'}
+                        </span>
                       </div>
-
-                      <div className="flex items-center gap-2.5 self-end sm:self-center">
-                        <button
-                          type="button"
-                          disabled={isItemProcessing}
-                          onClick={() => handleApprove(item.id)}
-                          className="px-4 py-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-bold text-xs flex items-center gap-2 transition-all active:scale-95 disabled:opacity-50 shadow-sm"
-                        >
-                          {isItemProcessing ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : (
-                            <Check className="w-4 h-4" />
-                          )}
-                          Tasdiqlash
-                        </button>
-
-                        <button
-                          type="button"
-                          disabled={isItemProcessing}
-                          onClick={() => handleReject(item.id)}
-                          className="px-4 py-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/20 font-bold text-xs flex items-center gap-2 transition-all active:scale-95 disabled:opacity-50 shadow-sm"
-                        >
-                          {isItemProcessing ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : (
-                            <X className="w-4 h-4" />
-                          )}
-                          Rad Etish
-                        </button>
+                      <h4 className="text-lg font-extrabold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                        {item.title}
+                      </h4>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">
+                        {item.description || 'Tavsif berilmagan'}
+                      </p>
+                      <div className="flex items-center gap-2 text-xs font-semibold text-slate-600 dark:text-slate-300 pt-2">
+                        <User className="w-4 h-4 text-indigo-500" />
+                        <span>Muallif: {item.authorName || 'Noma’lum'}</span>
                       </div>
                     </div>
-                  );
-                })}
+
+                    <div className="flex items-center gap-3 pt-4 border-t border-slate-200/60 dark:border-slate-800">
+                      <button
+                        onClick={() => handleApprove(item.id)}
+                        disabled={processingId === item.id}
+                        className="flex-1 py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white text-xs font-bold transition-all shadow-md shadow-emerald-600/20 flex items-center justify-center gap-1.5"
+                      >
+                        {processingId === item.id ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <>
+                            <Check className="w-4 h-4" />
+                            <span>Tasdiqlash</span>
+                          </>
+                        )}
+                      </button>
+                      <button
+                        onClick={() => handleReject(item.id)}
+                        disabled={processingId === item.id}
+                        className="flex-1 py-2.5 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 active:scale-[0.98] text-white text-xs font-bold transition-all shadow-md shadow-rose-600/20 flex items-center justify-center gap-1.5"
+                      >
+                        {processingId === item.id ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <>
+                            <X className="w-4 h-4" />
+                            <span>Rad Etish</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>
         )}
 
-        {/* REVIEWS & REPORTS TAB */}
-        {moderatorTab === 'reviews' && (
-          <div className="p-6 sm:p-10 rounded-3xl bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl border border-white/40 dark:border-slate-800/80 space-y-8 shadow-2xl shadow-indigo-500/5 transition-all">
-            {/* Sarlavha Paneli */}
-            <div className="flex items-center justify-between border-b border-slate-200/80 dark:border-slate-800/80 pb-5">
+        {/* REPORTS TAB */}
+        {moderatorTab === 'reports' && (
+          <div className="p-6 sm:p-10 rounded-3xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800 space-y-8 shadow-xl transition-all">
+            <div className="flex items-center justify-between border-b border-slate-200/80 dark:border-slate-800 pb-5">
               <div className="flex items-center gap-3">
-                <div className="p-3 rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 shadow-sm">
+                <div className="p-3 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 shadow-sm">
                   <ShieldAlert className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
-                    Foydalanuvchilar Shikoyatlari
+                  <h3 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white font-display">
+                    Foydalanuvchilar E'tirozlari va Shikoyatlari
                   </h3>
                   <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">
-                    Foydalanuvchilar va o'quvchilar tomonidan kelib tushgan e'tirozlar hamda shikoyatlar.
+                    Noo'rin kontent va qoida buzilishlari haqidagi xabarlar.
                   </p>
                 </div>
               </div>
-
-              {reports.length > 0 && (
-                <span className="px-3.5 py-1.5 rounded-full text-xs font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
-                  {reports.length} ta shikoyat
-                </span>
-              )}
             </div>
 
             {loading ? (
               <div className="flex flex-col items-center justify-center py-16 gap-3">
-                <div className="p-3 rounded-2xl bg-rose-500/10 text-rose-500 animate-pulse">
-                  <Loader2 className="w-8 h-8 animate-spin" />
-                </div>
+                <Loader2 className="w-8 h-8 animate-spin text-amber-500" />
                 <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                   Shikoyatlar yuklanmoqda...
                 </span>
               </div>
             ) : reports.length === 0 ? (
-              <div className="text-center py-16 border-2 border-dashed border-slate-200/80 dark:border-slate-800 rounded-3xl bg-slate-50/50 dark:bg-slate-950/30 space-y-2">
-                <div className="p-4 rounded-full bg-slate-100 dark:bg-slate-800 w-16 h-16 mx-auto flex items-center justify-center text-slate-400">
-                  <CheckSquare className="w-8 h-8 opacity-60 text-emerald-500" />
+              <div className="text-center py-16 space-y-4">
+                <div className="w-16 h-16 mx-auto rounded-3xl bg-amber-500/10 text-amber-500 flex items-center justify-center border border-amber-500/20 shadow-lg">
+                  <ShieldAlert className="w-8 h-8" />
                 </div>
-                <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300">
-                  Hech qanday shikoyatlar yo'q
-                </h4>
-                <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
-                  Platformada hozircha qoida buzilishlari yoki e'tirozlar qayd etilmadi.
+                <p className="text-base font-bold text-slate-800 dark:text-slate-200">
+                  Hozircha shikoyatlar kelib tushmagan
                 </p>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {reports.map((rep) => (
                   <div
                     key={rep.id}
-                    className="p-5 rounded-2xl bg-white/80 dark:bg-slate-950/60 backdrop-blur-md border border-slate-200/70 dark:border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg shadow-slate-500/5 hover:border-rose-500/30 transition-all"
+                    className="p-5 rounded-2xl bg-slate-50/70 dark:bg-slate-950/40 border border-slate-200/80 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                   >
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                       <div className="flex items-center gap-2">
-                        <span className="px-2.5 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 flex items-center gap-1">
-                          <AlertTriangle className="w-3 h-3" />
-                          {rep.contentType}
+                        <span className="px-2.5 py-0.5 text-[10px] font-bold rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 uppercase">
+                          {rep.reason || 'Shikoyat'}
                         </span>
+                        <span className="text-xs text-slate-400">{rep.createdAt || 'Bugun'}</span>
                       </div>
-                      <p className="text-sm font-bold text-slate-900 dark:text-white">
-                        {rep.reason}
+                      <h4 className="text-base font-bold text-slate-900 dark:text-white">
+                        {rep.targetTitle || "Noma'lum Ob'yekt"}
+                      </h4>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        {rep.details || 'Batafsil ma’lumot ko‘rsatilmadi.'}
                       </p>
-                      <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-                        <User className="w-3.5 h-3.5 text-rose-500" />
-                        <span>Shikoyat qiluvchi: <strong className="text-slate-700 dark:text-slate-300">{rep.reportedBy}</strong></span>
-                      </div>
                     </div>
-
-                    <button
-                      type="button"
-                      className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs transition-all self-end sm:self-center flex items-center gap-1.5"
-                    >
-                      <FileText className="w-3.5 h-3.5" />
-                      Tafsilotlar
+                    <button className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-indigo-600 dark:hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow-md self-start sm:self-center">
+                      Ko'rib Chiqish
                     </button>
                   </div>
                 ))}

@@ -13,6 +13,7 @@ import {
 import { coursesApi } from '../../services/coursesApi';
 import type { Course } from '../../types';
 import { useAuth } from '../../context/AuthContext';
+import { PageLoader } from '../../components/common/PageLoader';
 
 export const CoursesPage: React.FC = () => {
   const { openAuthModal, role } = useAuth();
@@ -88,10 +89,7 @@ export const CoursesPage: React.FC = () => {
 
       {/* Course List Grid */}
       {loading ? (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
-          <span className="ml-3 text-slate-600 dark:text-slate-400 font-semibold">Kurslar yuklanmoqda...</span>
-        </div>
+        <PageLoader fullScreen={false} />
       ) : filteredCourses.length === 0 ? (
         <div className="text-center py-20">
           <BookOpen className="w-12 h-12 text-slate-400 mx-auto mb-3" />

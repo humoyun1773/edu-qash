@@ -1,4 +1,5 @@
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? (import.meta.env.DEV ? '' : 'http://169.58.72.177');
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
 
 export const getAuthToken = (): string | null => {
   return localStorage.getItem('eduqash_token');
@@ -33,6 +34,7 @@ export async function request<T>(endpoint: string, options: RequestOptions = {})
     method,
     headers: {
       'Content-Type': 'application/json',
+      'Accept': 'application/json',
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...headers,
     },
@@ -67,8 +69,19 @@ export async function request<T>(endpoint: string, options: RequestOptions = {})
 
   const requestPromise = (async () => {
     try {
-      const response = await fetch(url, config);
-      if (!response.ok) {
+      let response = await fetch(url, config);
+
+      // Handle HTTP 304 Not Modified cleanly
+      if (response.status === 304) {
+        const cached = apiCache.get(url);
+        if (cached) {
+          return cached.data as T;
+        }
+        // If 304 returned without memory cache, re-fetch with cache reload to get full JSON payload
+        response = await fetch(url, { ...config, cache: 'reload' });
+      }
+
+      if (!response.ok && response.status !== 304) {
         const errorData = await response.json().catch(() => ({ message: response.statusText }));
         let errorMessage = errorData.message || errorData.detail;
         if (!errorMessage && errorData.non_field_errors) {
@@ -83,6 +96,7 @@ export async function request<T>(endpoint: string, options: RequestOptions = {})
         }
         throw new Error(errorMessage || `API Error: ${response.status}`);
       }
+
       const result = await response.json();
 
       // Store successful GET result in cache

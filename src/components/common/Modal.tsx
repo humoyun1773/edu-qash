@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 
 interface ModalProps {
@@ -16,6 +16,8 @@ export const Modal: React.FC<ModalProps> = ({
   children,
   maxWidth = 'md' 
 }) => {
+  const backdropRef = useRef<HTMLDivElement>(null);
+
   // ESC tugmasi bosilganda modalni yopish
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -27,21 +29,36 @@ export const Modal: React.FC<ModalProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Modal ochiqligida orqa fonda scroll bo'lishini to'xtatish
+  // Modal ochiqligida BODY scroll ni to'liq bloklash
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
+    if (!isOpen) return;
+
+    // Joriy scroll pozitsiyasini saqlab body ni qotirib qo'yamiz
+    const scrollY = window.scrollY;
+    const originalStyle = window.getComputedStyle(document.body).overflow;
+
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.width = '100%';
+
     return () => {
-      document.body.style.overflow = 'unset';
+      // Modal yopilganda sahifani oldingidek holatga qaytaramiz
+      document.body.style.overflow = originalStyle;
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      window.scrollTo(0, scrollY);
     };
   }, [isOpen]);
 
+  // Backdrop wheel eventini to'liq bloklash
+  const blockWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+  };
+
   if (!isOpen) return null;
 
-  // Eni moslashuvchanligi uchun Tailwind sinflari
   const maxWidthClasses = {
     sm: 'max-w-sm',
     md: 'max-w-md',
@@ -52,13 +69,18 @@ export const Modal: React.FC<ModalProps> = ({
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200"
+      ref={backdropRef}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200 overscroll-none"
       onClick={onClose}
+      onWheel={blockWheel}
+      onTouchMove={(e) => e.preventDefault()}
+      style={{ touchAction: 'none' }}
     >
       {/* Modal Card */}
       <div 
         className={`relative w-full ${maxWidthClasses[maxWidth]} bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl transition-all text-slate-900 dark:text-white overflow-hidden animate-in zoom-in-95 duration-200`}
         onClick={(e) => e.stopPropagation()}
+        onWheel={(e) => e.stopPropagation()}
       >
         {/* Neon Glow Highlights */}
         <div className="absolute -top-12 -right-12 w-36 h-36 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />

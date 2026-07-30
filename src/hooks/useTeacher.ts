@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { teacherService } from '../constants/teacher.service';
 import type { TeacherStudentItem, TeacherScheduleItem, CreateTeacherQuizPayload, TeacherCourseStats } from '../constants/teacher.type';
 import type { QuizItem } from '../constants/quizzes.type';
@@ -16,8 +16,11 @@ export const useTeacher = () => {
   const [stats, setStats] = useState<TeacherCourseStats[]>(() => getCached<TeacherCourseStats[]>(CACHE_KEY_STATS, []));
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const fetchedRef = useRef(false);
 
-  const fetchTeacherData = useCallback(async () => {
+  const fetchTeacherData = useCallback(async (force = false) => {
+    if (fetchedRef.current && !force) return;
+    fetchedRef.current = true;
     setLoading(true);
     setError(null);
     try {
@@ -68,7 +71,7 @@ export const useTeacher = () => {
     stats,
     loading,
     error,
-    refetch: fetchTeacherData,
+    refetch: () => fetchTeacherData(true),
     createQuiz
   };
 };

@@ -36,11 +36,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
       <div className="absolute top-1/3 right-10 w-72 h-72 bg-pink-500/15 rounded-full blur-3xl pointer-events-none" />
 
       <div className="text-center space-y-6 max-w-4xl mx-auto relative z-10">
-        {/* Hero Header Pill */}
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-600 dark:text-indigo-300 text-xs font-bold uppercase tracking-wider animate-bounce">
-          <Sparkles className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
-          O‘zbekistondagi №1 Ekotizim va LMS Platformasi
-        </div>
 
         {/* Hero Main Headline */}
         <h1 className="text-4xl sm:text-6xl font-black tracking-tight leading-none text-slate-900 dark:text-white">

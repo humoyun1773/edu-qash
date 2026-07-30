@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { centersApi } from '../../services/centersApi';
 import type { LearningCenter } from '../../types';
+import { PageLoader } from '../../components/common/PageLoader';
 
 export const CentersPage: React.FC = () => {
   const [search, setSearch] = useState('');

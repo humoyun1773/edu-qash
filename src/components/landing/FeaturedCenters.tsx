@@ -4,6 +4,8 @@ import { Building2, Star, ArrowRight, ShieldCheck, MapPin, BookOpen, Users, Cloc
 import { centersApi } from '../../services/centersApi';
 import type { LearningCenter } from '../../types';
 
+import { PageLoader } from '../common/PageLoader';
+
 export const FeaturedCenters: React.FC = () => {
   const [centers, setCenters] = useState<LearningCenter[]>([]);
   const [loading, setLoading] = useState(true);
@@ -18,10 +20,7 @@ export const FeaturedCenters: React.FC = () => {
   if (loading) {
     return (
       <section className="max-w-[1536px] w-full mx-auto px-4 sm:px-6 lg:px-8 my-12">
-        <div className="flex flex-col items-center justify-center py-20 bg-white/40 dark:bg-slate-900/40 rounded-3xl backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 space-y-3">
-          <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
-          <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Markazlar yuklanmoqda...</span>
-        </div>
+        <PageLoader fullScreen={false} />
       </section>
     );
   }

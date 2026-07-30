@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   X, Mail, Lock, Phone, KeyRound, ArrowRight, 
@@ -27,6 +27,24 @@ export const AuthModal: React.FC = () => {
     authError,
     clearError,
   } = useAuth();
+
+  // Body scroll lock when modal is open
+  useEffect(() => {
+    if (!isAuthModalOpen) return;
+    const scrollY = window.scrollY;
+    const original = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.width = '100%';
+    return () => {
+      document.body.style.overflow = original;
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      window.scrollTo(0, scrollY);
+    };
+  }, [isAuthModalOpen]);
 
   const navigate = useNavigate();
 
@@ -139,8 +157,11 @@ export const AuthModal: React.FC = () => {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200 overscroll-none"
       onClick={(e) => e.target === e.currentTarget && closeAuthModal()}
+      onWheel={(e) => e.stopPropagation()}
+      onTouchMove={(e) => e.preventDefault()}
+      style={{ touchAction: 'none' }}
     >
       {/* Modal Card */}
       <div className="relative w-full max-w-md overflow-hidden rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-6 sm:p-8 shadow-2xl transition-all text-slate-900 dark:text-white">

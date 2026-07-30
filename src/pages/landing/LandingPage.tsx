@@ -4,10 +4,11 @@ import { FeaturedCenters } from '../../components/landing/FeaturedCenters';
 import { FeaturedCourses } from '../../components/landing/FeaturedCourses';
 import { AITestingSection } from '../../components/landing/AITestingSection';
 import { useCourses } from '../../hooks/useCourses';
+import { PageLoader } from '../../components/common/PageLoader';
 
 export const LandingPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const { courses } = useCourses();
+  const { courses, loading } = useCourses();
 
   const filteredCourses = courses.filter(c => 
     c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -15,8 +16,12 @@ export const LandingPage: React.FC = () => {
     c.teacherName.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  if (loading) {
+    return <PageLoader />;
+  }
+
   return (
-    <div className="space-y-20 pb-20">
+    <div className="space-y-20 pb-20 animate-in fade-in duration-500">
       <HeroSection searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
       <FeaturedCenters />
       <FeaturedCourses courses={filteredCourses} />

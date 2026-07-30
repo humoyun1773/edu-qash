@@ -12,8 +12,8 @@ import {
   Search,
   Bot,
   ArrowUpRight,
-  ChevronRight,
-  LayoutDashboard
+  TrendingUp,
+  UserCheck
 } from 'lucide-react';
 import { useTeacher } from '../../../hooks/useTeacher';
 import { Modal } from '../../../components/common/Modal';
@@ -25,7 +25,7 @@ type QuizCategory = 'IELTS' | 'SAT' | 'CEFR' | 'General';
 
 export const TeacherDashboard: React.FC = () => {
   const [teacherTab, setTeacherTab] = useState<TeacherTabType>('students');
-  const { students: studentsList, schedule: scheduleList, loading, createQuiz } = useTeacher();
+  const { students: studentsList, schedule: scheduleList, quizzes: quizzesList, loading, createQuiz } = useTeacher();
 
   // Modal & Async Loading States
   const [isQuizModalOpen, setIsQuizModalOpen] = useState(false);
@@ -70,343 +70,333 @@ export const TeacherDashboard: React.FC = () => {
   const teacherTabs = getTeacherTabs(studentsList?.length || 0, scheduleList?.length || 0);
 
   return (
-    <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950/50 transition-colors duration-300 space-y-8">
-      {/* TOP BANNER / TEACHER PROFILE HEADER */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-900 via-indigo-800 to-violet-900 p-6 sm:p-8 text-white shadow-xl shadow-indigo-950/20">
-        <div className="absolute -right-10 -bottom-10 w-60 h-60 bg-violet-500/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -left-10 -top-10 w-60 h-60 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none" />
+    <div className="flex flex-col lg:flex-row gap-8 min-h-screen">
+      {/* SIDEBAR */}
+      <DashboardSidebar
+        title="O‘qituvchi Boshqaruvi"
+        activeTab={teacherTab}
+        onSelectTab={setTeacherTab}
+        tabs={teacherTabs}
+        accentGradient="from-indigo-600 via-purple-600 to-pink-600"
+      />
 
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-indigo-400 to-violet-400 p-1 shadow-lg">
-                <div className="w-full h-full bg-slate-900 rounded-[14px] flex items-center justify-center text-2xl font-black text-indigo-300">
-                  <GraduationCap className="w-9 h-9" />
+      {/* MAIN CONTENT PANEL */}
+      <div className="flex-1 min-w-0 space-y-8">
+        
+        {/* TOP OVERVIEW CARDS (SUPER ADMIN STYLE) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {/* Card 1 */}
+          <div className="relative overflow-hidden p-6 rounded-3xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800 backdrop-blur-xl shadow-xl hover:border-indigo-500/40 transition-all duration-300 group">
+            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+              <Users className="w-20 h-20 text-indigo-500" />
+            </div>
+            <div className="flex items-center gap-4 mb-3">
+              <div className="p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400">
+                <Users className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Mening O'quvchilarim</p>
+                <h4 className="text-3xl font-black text-slate-900 dark:text-white font-display">{studentsList?.length || 0}</h4>
+              </div>
+            </div>
+            <div className="flex items-center text-xs text-emerald-600 dark:text-emerald-400 font-bold pt-3 border-t border-slate-100 dark:border-slate-800">
+              <TrendingUp className="w-4 h-4 mr-1.5" />
+              <span>O'quvchilar aktivligi yuqori</span>
+            </div>
+          </div>
+
+          {/* Card 2 */}
+          <div className="relative overflow-hidden p-6 rounded-3xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800 backdrop-blur-xl shadow-xl hover:border-emerald-500/40 transition-all duration-300 group">
+            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+              <Calendar className="w-20 h-20 text-emerald-500" />
+            </div>
+            <div className="flex items-center gap-4 mb-3">
+              <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400">
+                <Calendar className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Haftalik Darslar</p>
+                <h4 className="text-3xl font-black text-slate-900 dark:text-white font-display">{scheduleList?.length || 0}</h4>
+              </div>
+            </div>
+            <div className="flex items-center text-xs text-emerald-600 dark:text-emerald-400 font-bold pt-3 border-t border-slate-100 dark:border-slate-800">
+              <Clock className="w-4 h-4 mr-1.5" />
+              <span>Rejalashtirilgan jadvallar</span>
+            </div>
+          </div>
+
+          {/* Card 3 */}
+          <div className="relative overflow-hidden p-6 rounded-3xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800 backdrop-blur-xl shadow-xl hover:border-amber-500/40 transition-all duration-300 group sm:col-span-2 lg:col-span-1">
+            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+              <BookOpenCheck className="w-20 h-20 text-amber-500" />
+            </div>
+            <div className="flex items-center gap-4 mb-3">
+              <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400">
+                <BookOpenCheck className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Yaratilgan Testlar</p>
+                <h4 className="text-3xl font-black text-slate-900 dark:text-white font-display">{quizzesList?.length || 0}</h4>
+              </div>
+            </div>
+            <div className="flex items-center text-xs text-amber-600 dark:text-amber-400 font-bold pt-3 border-t border-slate-100 dark:border-slate-800">
+              <CheckCircle2 className="w-4 h-4 mr-1.5" />
+              <span>Quiz va Mock sinovlar</span>
+            </div>
+          </div>
+        </div>
+
+        {/* SUCCESS NOTIFICATION TOAST */}
+        {submitSuccess && (
+          <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold flex items-center justify-between shadow-lg shadow-emerald-500/5 animate-in fade-in duration-300">
+            <div className="flex items-center gap-2.5">
+              <CheckCircle2 className="w-5 h-5 flex-shrink-0 text-emerald-500" />
+              <span>{submitSuccess}</span>
+            </div>
+          </div>
+        )}
+
+        {/* SETTINGS TAB */}
+        {teacherTab === 'settings' && <DashboardSettings />}
+
+        {/* STUDENTS TAB */}
+        {teacherTab === 'students' && (
+          <div className="p-6 sm:p-10 rounded-3xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800 space-y-8 shadow-xl transition-all">
+            <div className="flex items-center justify-between border-b border-slate-200/80 dark:border-slate-800 pb-5">
+              <div className="flex items-center gap-3">
+                <div className="p-3 rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 shadow-sm">
+                  <Users className="w-6 h-6" />
                 </div>
-              </div>
-              <span className="absolute bottom-0 right-0 w-4 h-4 bg-emerald-500 border-2 border-slate-900 rounded-full" />
-            </div>
-            <div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs font-semibold text-indigo-200 mb-2">
-                <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                <span>O‘qituvchi Boshqaruv Paneli</span>
-              </div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-                Xush kelibsiz, Ustoz! 👨‍🏫
-              </h1>
-              <p className="text-sm text-indigo-200/80 mt-1">
-                O'quvchilar va test jarayonlarini samarali boshqaring.
-              </p>
-            </div>
-          </div>
-
-          {/* Quick Stats Cards */}
-          <div className="grid grid-cols-3 gap-3 bg-white/5 backdrop-blur-md p-3 sm:p-4 rounded-2xl border border-white/10">
-            <div className="text-center px-2 sm:px-4">
-              <span className="block text-xs text-indigo-200/70 font-medium">O'quvchilar</span>
-              <span className="text-lg sm:text-xl font-black text-white">{studentsList?.length || 0}</span>
-            </div>
-            <div className="text-center px-2 sm:px-4 border-x border-white/10">
-              <span className="block text-xs text-indigo-200/70 font-medium">Darslar</span>
-              <span className="text-lg sm:text-xl font-black text-white">{scheduleList?.length || 0}</span>
-            </div>
-            <div className="text-center px-2 sm:px-4">
-              <span className="block text-xs text-indigo-200/70 font-medium">Holat</span>
-              <span className="text-xs sm:text-sm font-bold text-emerald-400 mt-1 block">Aktiv</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* DASHBOARD BODY */}
-      <div className="flex flex-col lg:flex-row gap-8">
-        {/* COLLAPSIBLE SIDEBAR */}
-        <div className="lg:w-80 shrink-0">
-          <DashboardSidebar
-            title="O‘qituvchi Boshqaruvi"
-            activeTab={teacherTab}
-            onSelectTab={setTeacherTab}
-            tabs={teacherTabs}
-            accentGradient="from-indigo-600 to-violet-600"
-          />
-        </div>
-
-        {/* MAIN CONTENT PANEL */}
-        <div className="flex-1 min-w-0 space-y-6">
-          {/* SUCCESS NOTIFICATION TOAST */}
-          {submitSuccess && (
-            <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold flex items-center justify-between shadow-lg shadow-emerald-500/5 animate-in fade-in duration-300">
-              <div className="flex items-center gap-2.5">
-                <CheckCircle2 className="w-5 h-5 flex-shrink-0 text-emerald-500" />
-                <span>{submitSuccess}</span>
-              </div>
-            </div>
-          )}
-
-          {/* SETTINGS TAB */}
-          {teacherTab === 'settings' && <DashboardSettings />}
-
-          {/* STUDENTS TAB */}
-          {teacherTab === 'students' && (
-            <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl p-6 sm:p-8 rounded-3xl border border-slate-200/80 dark:border-slate-800/80 shadow-xl shadow-slate-200/50 dark:shadow-none space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
                 <div>
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
-                    <div className="p-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
-                      <Users className="w-5 h-5" />
-                    </div>
+                  <h3 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white font-display">
                     Mening O‘quvchilarim Ro‘yxati
                   </h3>
-                  <p className="text-xs text-slate-500 mt-1">
-                    Guruhingizga biriktirilgan talabalar natijalari va faolligi.
+                  <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+                    Sizning guruhlaringizda ta'lim olayotgan barcha o'quvchilar va ularning ballari.
                   </p>
                 </div>
-
-                {studentsList && studentsList.length > 0 && (
-                  <span className="self-start sm:self-center text-xs font-semibold px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 border border-indigo-200/50 dark:border-indigo-800/50">
-                    Jami: {studentsList.length} ta talaba
-                  </span>
-                )}
               </div>
 
-              {loading ? (
-                <div className="flex flex-col items-center justify-center py-16 space-y-3">
-                  <Loader2 className="w-8 h-8 animate-spin text-indigo-600 dark:text-indigo-400" />
-                  <span className="text-xs font-medium text-slate-500">O'quvchilar yuklanmoqda...</span>
-                </div>
-              ) : !studentsList || studentsList.length === 0 ? (
-                <div className="text-center py-16 space-y-3">
-                  <div className="w-16 h-16 mx-auto rounded-2xl bg-slate-100 dark:bg-slate-800/50 flex items-center justify-center text-slate-400">
-                    <Users className="w-8 h-8" />
-                  </div>
-                  <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                    Hozircha biriktirilgan o‘quvchilar mavjud emas
-                  </p>
-                  <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                    Yangi talabalar guruhga qo'shilgach shu yerda namoyon bo'ladi.
-                  </p>
-                </div>
-              ) : (
-                <div className="overflow-hidden rounded-2xl border border-slate-200/80 dark:border-slate-800">
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left text-xs text-slate-700 dark:text-slate-300">
-                      <thead className="bg-slate-100/70 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300 font-bold uppercase tracking-wider border-b border-slate-200 dark:border-slate-800">
-                        <tr>
-                          <th className="p-4">O‘quvchi</th>
-                          <th className="p-4">Email</th>
-                          <th className="p-4">Kurs</th>
-                          <th className="p-4 text-right">O‘rtacha Ball</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 bg-white/50 dark:bg-slate-900/40">
-                        {studentsList.map((st) => (
-                          <tr key={st.id} className="hover:bg-indigo-50/40 dark:hover:bg-slate-800/40 transition-colors">
-                            <td className="p-4 font-bold text-slate-900 dark:text-white flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-500 to-violet-500 text-white flex items-center justify-center font-black text-xs shadow-md shadow-indigo-500/20">
-                                {st.name ? st.name.charAt(0).toUpperCase() : 'U'}
-                              </div>
-                              <span className="text-sm">{st.name}</span>
-                            </td>
-                            <td className="p-4 text-slate-500 dark:text-slate-400 font-medium">{st.email}</td>
-                            <td className="p-4">
-                              <span className="px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-bold border border-indigo-200/40 dark:border-indigo-800/40">
-                                {st.courseName}
-                              </span>
-                            </td>
-                            <td className="p-4 text-right">
-                              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 font-extrabold text-xs border border-emerald-200/50 dark:border-emerald-800/50">
-                                <CheckCircle2 className="w-3.5 h-3.5" />
-                                {st.score ?? 'N/A'}
-                              </span>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
+              {studentsList && studentsList.length > 0 && (
+                <span className="px-3.5 py-1.5 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
+                  {studentsList.length} nafar o'quvchi
+                </span>
               )}
             </div>
-          )}
 
-          {/* CREATE TEST TAB */}
-          {teacherTab === 'create_quiz' && (
-            <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl p-6 sm:p-8 rounded-3xl border border-slate-200/80 dark:border-slate-800/80 shadow-xl shadow-slate-200/50 dark:shadow-none space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
-                <div>
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
-                    <div className="p-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
-                      <Plus className="w-5 h-5" />
-                    </div>
-                    Yangi Test & Quiz Yaratuvchi (Builder)
-                  </h3>
-                  <p className="text-xs text-slate-500 mt-1">
-                    O'quvchilar uchun yangi topshiriq va testlarni shakllantiring.
+            {loading ? (
+              <div className="flex flex-col items-center justify-center py-20 space-y-3">
+                <Loader2 className="w-8 h-8 animate-spin text-indigo-600 dark:text-indigo-400" />
+                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">O'quvchilar yuklanmoqda...</span>
+              </div>
+            ) : !studentsList || studentsList.length === 0 ? (
+              <div className="text-center py-16 space-y-4">
+                <div className="w-16 h-16 mx-auto rounded-3xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center border border-indigo-500/20 shadow-lg">
+                  <Users className="w-8 h-8" />
+                </div>
+                <div className="space-y-1">
+                  <h4 className="text-lg font-bold text-slate-900 dark:text-white">
+                    Hozircha biriktirilgan o'quvchilar yo'q
+                  </h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
+                    Markaz ma'muri tomonidan sizga yangi o'quvchilar guruhlandi.
                   </p>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setIsQuizModalOpen(true)}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-indigo-600 dark:hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow-md active:scale-95 self-start sm:self-center"
-                >
-                  <Plus className="w-4 h-4" /> Modal Oynada Ochish
-                </button>
               </div>
+            ) : (
+              <div className="overflow-hidden rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-slate-100/70 dark:bg-slate-900/60 text-slate-500 dark:text-slate-400 font-extrabold uppercase tracking-wider border-b border-slate-200/80 dark:border-slate-800">
+                      <tr>
+                        <th className="px-6 py-4">O'quvchi</th>
+                        <th className="px-6 py-4">Email</th>
+                        <th className="px-6 py-4">Kurs Nomi</th>
+                        <th className="px-6 py-4">O'zlashtirish Balli</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-200/80 dark:divide-slate-800/60 font-medium">
+                      {studentsList.map((st) => (
+                        <tr key={st.id} className="hover:bg-indigo-50/40 dark:hover:bg-slate-800/40 transition-colors">
+                          <td className="px-6 py-4 text-slate-900 dark:text-white font-bold flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-xl bg-indigo-600 text-white font-bold flex items-center justify-center text-xs shadow-sm">
+                              {st.name.charAt(0)}
+                            </div>
+                            <span>{st.name}</span>
+                          </td>
+                          <td className="px-6 py-4 text-slate-500 dark:text-slate-400">{st.email}</td>
+                          <td className="px-6 py-4 text-indigo-600 dark:text-indigo-400 font-semibold">{st.courseName}</td>
+                          <td className="px-6 py-4">
+                            <span className="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-extrabold border border-emerald-500/20">
+                              {st.score}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
-              <form onSubmit={handleCreateQuiz} className="space-y-5 max-w-2xl">
+        {/* QUIZ BUILDER TAB */}
+        {teacherTab === 'quiz_builder' && (
+          <div className="p-6 sm:p-10 rounded-3xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800 space-y-8 shadow-xl transition-all">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-slate-800 pb-5">
+              <div className="flex items-center gap-3">
+                <div className="p-3 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 shadow-sm">
+                  <BookOpenCheck className="w-6 h-6" />
+                </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">
-                    Test Nomi
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={newQuizTitle}
-                    onChange={(e) => setNewQuizTitle(e.target.value)}
-                    placeholder="masalan: IELTS Writing Task 2 Mock Test"
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-3.5 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
-                  />
+                  <h3 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white font-display">
+                    Test va Quiz Yaratish Paneli
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                    O'quvchilar uchun individual yoki guruh testlarini tuzing.
+                  </p>
                 </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">
-                      Kategoriya
-                    </label>
-                    <select
-                      value={newQuizCategory}
-                      onChange={(e) => setNewQuizCategory(e.target.value as QuizCategory)}
-                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-3.5 text-xs text-slate-900 dark:text-white font-bold cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
-                    >
-                      <option value="IELTS">IELTS</option>
-                      <option value="SAT">SAT</option>
-                      <option value="CEFR">CEFR</option>
-                      <option value="General">General</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">
-                      Davomiyligi (Daqiqa)
-                    </label>
-                    <input
-                      type="number"
-                      min={1}
-                      value={newQuizDuration}
-                      onChange={(e) => setNewQuizDuration(Number(e.target.value))}
-                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-3.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
-                    />
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow-md shadow-indigo-600/20 disabled:opacity-50 active:scale-95"
-                >
-                  {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <BookOpenCheck className="w-4 h-4" />}
-                  <span>Testni Saqlash & Nashr Etish</span>
-                </button>
-              </form>
-            </div>
-          )}
-
-          {/* HOMEWORK TAB */}
-          {teacherTab === 'homework' && (
-            <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl p-6 sm:p-8 rounded-3xl border border-slate-200/80 dark:border-slate-800/80 shadow-xl shadow-slate-200/50 dark:shadow-none space-y-6">
-              <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
-                  <div className="p-2.5 rounded-xl bg-violet-50 dark:bg-violet-500/10 text-violet-600 dark:text-violet-400">
-                    <Bot className="w-5 h-5" />
-                  </div>
-                  AI Uy Vazifalar Checker & Grader
-                </h3>
               </div>
 
-              <div className="p-8 rounded-2xl bg-gradient-to-br from-indigo-500/5 via-violet-500/5 to-transparent border border-indigo-500/10 space-y-4">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 text-xs font-bold">
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>AI Modul</span>
+              <button
+                onClick={() => setIsQuizModalOpen(true)}
+                className="btn-primary py-3 px-5 text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/25"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Yangi Test Yaratish</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {quizzesList?.map((q) => (
+                <div
+                  key={q.id}
+                  className="p-6 rounded-3xl bg-slate-50/70 dark:bg-slate-950/40 hover:bg-white dark:hover:bg-slate-800/90 border border-slate-200/80 dark:border-slate-800 transition-all duration-300 hover:shadow-xl space-y-4 flex flex-col justify-between"
+                >
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="px-3 py-1 text-[10px] font-extrabold rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 uppercase tracking-wider border border-amber-500/20">
+                        {q.category}
+                      </span>
+                      <span className="text-xs text-slate-400 flex items-center gap-1">
+                        <Clock className="w-3.5 h-3.5" />
+                        {q.durationMinutes} daqiqa
+                      </span>
+                    </div>
+                    <h4 className="text-lg font-extrabold text-slate-900 dark:text-white">
+                      {q.title}
+                    </h4>
+                  </div>
+
+                  <div className="pt-3 border-t border-slate-200/60 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                    <span>O'tish bali: <strong className="text-slate-900 dark:text-white">{q.passScore || 70}%</strong></span>
+                    <span className="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-500/20">
+                      Faol Test
+                    </span>
+                  </div>
                 </div>
-                <h4 className="text-lg font-bold text-slate-900 dark:text-white">
-                  Sun'iy Intellekt Orqali Baholash
-                </h4>
-                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed max-w-xl">
-                  Talabalarning topshirgan insho (essay) hamda boshqa yozma vazifalarini sun'iy intellekt yordamida tezkor tahlil qiling va grammatik, strukturaviy xatolar bo'yicha tavsiyalar oling.
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* AI HOMEWORK CHECKER TAB */}
+        {teacherTab === 'ai_checker' && (
+          <div className="p-6 sm:p-10 rounded-3xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800 space-y-8 shadow-xl transition-all">
+            <div className="flex items-center gap-3 border-b border-slate-200/80 dark:border-slate-800 pb-5">
+              <div className="p-3 rounded-2xl bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 shadow-sm">
+                <Bot className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white font-display">
+                  AI Yordamida Uy Vazifalarini Tekshirish
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                  Insholar, yozma va grammatik topshiriqlarni sun'iy intellekt orqali tekshiring.
                 </p>
               </div>
             </div>
-          )}
 
-          {/* SCHEDULE TAB */}
-          {teacherTab === 'schedule' && (
-            <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl p-6 sm:p-8 rounded-3xl border border-slate-200/80 dark:border-slate-800/80 shadow-xl shadow-slate-200/50 dark:shadow-none space-y-6">
-              <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
-                  <div className="p-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
-                    <Calendar className="w-5 h-5" />
-                  </div>
-                  Haftalik Dars Jadvali
-                </h3>
+            <div className="p-8 rounded-3xl bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-transparent border border-indigo-500/20 text-center space-y-4">
+              <div className="w-16 h-16 mx-auto rounded-3xl bg-indigo-600 text-white flex items-center justify-center text-2xl font-bold shadow-xl shadow-indigo-600/30">
+                <Bot className="w-8 h-8" />
               </div>
-
-              {loading ? (
-                <div className="flex flex-col items-center justify-center py-16 space-y-3">
-                  <Loader2 className="w-8 h-8 animate-spin text-indigo-600 dark:text-indigo-400" />
-                  <span className="text-xs font-medium text-slate-500">Jadval yuklanmoqda...</span>
-                </div>
-              ) : !scheduleList || scheduleList.length === 0 ? (
-                <div className="text-center py-16 space-y-3">
-                  <div className="w-16 h-16 mx-auto rounded-2xl bg-slate-100 dark:bg-slate-800/50 flex items-center justify-center text-slate-400">
-                    <Calendar className="w-8 h-8" />
-                  </div>
-                  <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                    Hozircha dars jadvali shakllantirilmagan
-                  </p>
-                  <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                    Yangi dars jadvali tayyorlangach shu bo'limda namoyon bo'ladi.
-                  </p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {scheduleList.map((item, idx) => (
-                    <div
-                      key={idx}
-                      className="p-5 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 hover:bg-white dark:hover:bg-slate-800/80 border border-slate-200/80 dark:border-slate-800 transition-all duration-300 hover:shadow-lg flex items-center justify-between gap-4"
-                    >
-                      <div className="space-y-1">
-                        <span className="inline-block px-2.5 py-0.5 rounded-md bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-300 text-[10px] font-extrabold uppercase">
-                          {item.day}
-                        </span>
-                        <h4 className="text-sm font-bold text-slate-900 dark:text-white">{item.title}</h4>
-                      </div>
-                      <span className="inline-flex items-center gap-1.5 text-xs text-slate-700 dark:text-slate-300 font-mono font-bold bg-white dark:bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-200/80 dark:border-slate-700 shadow-sm shrink-0">
-                        <Clock className="w-3.5 h-3.5 text-indigo-500" />
-                        {item.time}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <div className="space-y-1">
+                <h4 className="text-xl font-extrabold text-slate-900 dark:text-white font-display">
+                  AI Assistent Foydalanishga Tayyor!
+                </h4>
+                <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto">
+                  IELTS Writing va Essay insholarini bir necha soniyada avtomatik tekshirib, Band Score bashorat qiling.
+                </p>
+              </div>
+              <a
+                href="/ai-assistant"
+                className="btn-primary py-3.5 px-8 text-xs font-bold inline-flex items-center gap-2 shadow-xl shadow-indigo-500/25"
+              >
+                <span>AI Tekshirgichga O'tish</span>
+                <ArrowUpRight className="w-4 h-4" />
+              </a>
             </div>
-          )}
-        </div>
+          </div>
+        )}
+
+        {/* SCHEDULE TAB */}
+        {teacherTab === 'schedule' && (
+          <div className="p-6 sm:p-10 rounded-3xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800 space-y-8 shadow-xl transition-all">
+            <div className="flex items-center gap-3 border-b border-slate-200/80 dark:border-slate-800 pb-5">
+              <div className="p-3 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shadow-sm">
+                <Calendar className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white font-display">
+                  Dars Jadvali va Vaqtlar
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                  Haftalik jonli darslar va mashg'ulotlar jadvali.
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {scheduleList?.map((s, idx) => (
+                <div
+                  key={idx}
+                  className="p-6 rounded-3xl bg-slate-50/70 dark:bg-slate-950/40 border border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-4"
+                >
+                  <div className="space-y-1">
+                    <span className="px-3 py-1 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-extrabold uppercase">
+                      {s.day}
+                    </span>
+                    <h4 className="text-base font-bold text-slate-900 dark:text-white pt-1">
+                      {s.title}
+                    </h4>
+                  </div>
+                  <div className="px-4 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-bold text-indigo-600 dark:text-indigo-400 shadow-sm">
+                    {s.time}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
       </div>
 
       {/* CREATE QUIZ MODAL */}
-      <Modal isOpen={isQuizModalOpen} onClose={() => setIsQuizModalOpen(false)} title="Yangi Test Yaratish">
-        <form onSubmit={handleCreateQuiz} className="space-y-5 pt-2">
+      <Modal isOpen={isQuizModalOpen} onClose={() => setIsQuizModalOpen(false)} title="Yangi Test / Quiz Yaratish">
+        <form onSubmit={handleCreateQuiz} className="space-y-5">
           <div>
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">
-              Test Nomi
+              Test Sarlavhasi / Nomi
             </label>
             <input
               type="text"
               required
+              placeholder="masalan: IELTS Reading Academic Test #1"
               value={newQuizTitle}
               onChange={(e) => setNewQuizTitle(e.target.value)}
-              placeholder="masalan: IELTS Reading Mini Mock Test"
-              className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3.5 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+              className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500"
             />
           </div>
 
@@ -418,44 +408,45 @@ export const TeacherDashboard: React.FC = () => {
               <select
                 value={newQuizCategory}
                 onChange={(e) => setNewQuizCategory(e.target.value as QuizCategory)}
-                className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3.5 text-xs text-slate-900 dark:text-white font-bold cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500"
               >
                 <option value="IELTS">IELTS</option>
                 <option value="SAT">SAT</option>
                 <option value="CEFR">CEFR</option>
-                <option value="General">General</option>
+                <option value="General">General English</option>
               </select>
             </div>
 
             <div>
               <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">
-                Vaqt (Daqiqa)
+                Vaqt Chegarasi (daqiqa)
               </label>
               <input
                 type="number"
-                min={1}
+                required
+                min={5}
+                max={180}
                 value={newQuizDuration}
                 onChange={(e) => setNewQuizDuration(Number(e.target.value))}
-                className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500"
               />
             </div>
           </div>
 
-          <div className="flex items-center justify-end gap-3 pt-5 border-t border-slate-100 dark:border-slate-800">
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200/80 dark:border-slate-800">
             <button
               type="button"
               onClick={() => setIsQuizModalOpen(false)}
-              className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="px-5 py-3 rounded-2xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
             >
               Bekor qilish
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow-md shadow-indigo-600/20 disabled:opacity-50 active:scale-95"
+              className="btn-primary py-3 px-6 text-xs font-bold shadow-lg shadow-indigo-500/25"
             >
-              {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-              <span>Testni Saqlash</span>
+              {isSubmitting ? 'Yaratilmoqda...' : "Testni Yaratish"}
             </button>
           </div>
         </form>
