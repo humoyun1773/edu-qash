@@ -75,14 +75,14 @@ export const AuthModal: React.FC = () => {
     setSuccessMessage(null);
 
     if (mode === 'login') {
-      // Real login: username yoki email + password
-      const loginId = username || email;
-      if (!loginId || !password) {
-        setLocalError("Login va parolni kiriting.");
+      // Real login: username + password
+      const cleanUsername = username.trim();
+      if (!cleanUsername || !password.trim()) {
+        setLocalError("Username va parolni kiriting.");
         return;
       }
       try {
-        await loginWithPassword(loginId, password);
+        await loginWithPassword(cleanUsername, password.trim());
         navigate('/dashboard');
       } catch {
         // Xato authError orqali ko'rsatiladi
@@ -105,6 +105,7 @@ export const AuthModal: React.FC = () => {
       try {
         const res = await register(name, email, password, selectedRole);
         setSuccessMessage(res.message);
+        if (email) setUsername(email);
         setMode('login'); // Muvaffaqiyatli ro'yxatdan so'ng login formiga o'tish
       } catch {
         // Xato authError orqali ko'rsatiladi
@@ -273,7 +274,7 @@ export const AuthModal: React.FC = () => {
           {mode === 'login' && (
             <div>
               <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                Username yoki Email
+                Username
               </label>
               <div className="relative">
                 <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
@@ -282,7 +283,7 @@ export const AuthModal: React.FC = () => {
                   required
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder="username yoki email@example.com"
+                  placeholder="Username kiriting (masalan: jasur_99)"
                   autoComplete="username"
                   className="w-full bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition-all"
                 />

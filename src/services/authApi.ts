@@ -26,11 +26,10 @@ export const authApi = {
    * Login: username + password → token + user
    * Backend: POST /auth/login/
    */
-  login: async (usernameOrEmail: string, _role?: UserRole): Promise<LoginResponse> => {
+  login: async (username: string, _role?: UserRole): Promise<LoginResponse> => {
     try {
       const res = await api.post<any>(API_ENDPOINTS.AUTH.LOGIN, {
-        username: usernameOrEmail,
-        email: usernameOrEmail,
+        username: username.trim(),
         password: _role ? `${_role}_pass` : undefined, // password auth modal'dan keladi
       });
 
@@ -52,13 +51,13 @@ export const authApi = {
 
   /**
    * Login with explicit password
-   * Asosiy login metodi — username yoki email va parol bilan
+   * Asosiy login metodi — username va parol bilan
    */
-  loginWithPassword: async (usernameOrEmail: string, password: string): Promise<LoginResponse> => {
+  loginWithPassword: async (username: string, password: string): Promise<LoginResponse> => {
+    const cleanUsername = username.trim();
     const res = await api.post<any>(API_ENDPOINTS.AUTH.LOGIN, {
-      username: usernameOrEmail,
-      email: usernameOrEmail,
-      password,
+      username: cleanUsername,
+      password: password.trim(),
     });
 
     const token = res.token || res.access || res.tokens?.access || res.jwt;

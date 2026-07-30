@@ -48,7 +48,7 @@ interface AuthContextType {
   authError: string | null;
 
   // Asosiy metodlar
-  loginWithPassword: (usernameOrEmail: string, password: string) => Promise<void>;
+  loginWithPassword: (username: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string, role: UserRole) => Promise<{ message: string }>;
   logout: () => void;
   clearError: () => void;
@@ -89,12 +89,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const clearError = () => setAuthError(null);
 
-  // ─── HAQIQIY LOGIN (username/email + password) ───────────────────────────
-  const loginWithPassword = async (usernameOrEmail: string, password: string) => {
+  // ─── HAQIQIY LOGIN (username + password) ───────────────────────────
+  const loginWithPassword = async (username: string, password: string) => {
     setIsLoading(true);
     setAuthError(null);
     try {
-      const res = await authApi.loginWithPassword(usernameOrEmail, password);
+      const res = await authApi.loginWithPassword(username, password);
       setUser(res.user);
       setRole(res.user.role);
       setIsAuthenticated(true);
@@ -104,12 +104,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const rawMsg: string = err?.message || '';
       let friendlyMsg = "Kirish amalga oshmadi. Qayta urinib ko'ring.";
 
-      if (rawMsg.includes('Invalid credentials') || rawMsg.includes('No active account')) {
-        friendlyMsg = "Login yoki parol noto'g'ri. Qayta tekshiring.";
-      } else if (rawMsg.includes('tasdiqlanmagan') || rawMsg.includes('pending')) {
+      if (rawMsg.includes('Invalid credentials') || rawMsg.includes('No active account') || rawMsg.includes('401') || rawMsg.includes('credentials') || rawMsg.includes('incorrect')) {
+        friendlyMsg = "Username yoki parol noto'g'ri. Qayta tekshiring.";
+      } else if (rawMsg.includes('tasdiqlanmagan') || rawMsg.includes('pending') || rawMsg.includes('approved')) {
         friendlyMsg = "Hisobingiz admin tomonidan hali tasdiqlanmagan. Kuting.";
-      } else if (rawMsg.includes('not provided')) {
-        friendlyMsg = "Login va parolni kiriting.";
+      } else if (rawMsg.includes('not provided') || rawMsg.includes('required') || rawMsg.includes('blank')) {
+        friendlyMsg = "Username va parolni kiriting.";
       } else if (rawMsg) {
         friendlyMsg = rawMsg;
       }

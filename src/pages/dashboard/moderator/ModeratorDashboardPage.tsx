@@ -1,9 +1,9 @@
 import React from 'react';
-import { useAuth } from '../../context/AuthContext';
-import { DashboardHeader } from './common/DashboardHeader';
-import { TeacherDashboard } from './teacher/TeacherDashboard';
+import { useAuth } from '../../../context/AuthContext';
+import { DashboardHeader } from '../common/DashboardHeader';
+import { ModeratorDashboard } from './ModeratorDashboard';
 
-export const TeacherDashboardPage: React.FC = () => {
+export const ModeratorDashboardPage: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
 
   if (!isAuthenticated && !user) {
@@ -13,9 +13,9 @@ export const TeacherDashboardPage: React.FC = () => {
           <div className="w-16 h-16 bg-rose-500/10 text-rose-500 rounded-2xl flex items-center justify-center mx-auto text-2xl font-bold">
             🔒
           </div>
-          <h2 className="text-2xl font-black text-slate-900 dark:text-white">O'qituvchi Kabinetiga Kirish Cheklangan</h2>
+          <h2 className="text-2xl font-black text-slate-900 dark:text-white">Moderator Kabinetiga Kirish Cheklangan</h2>
           <p className="text-xs text-slate-600 dark:text-slate-400">
-            Ushbu sahifani ko‘rish uchun avval o'qituvchi sifatida tizimga kiring.
+            Ushbu sahifani ko‘rish uchun avval moderator sifatida tizimga kiring.
           </p>
           <a
             href="/"
@@ -30,15 +30,12 @@ export const TeacherDashboardPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col transition-colors duration-300">
-      {/* Sleek Dashboard Header */}
       <DashboardHeader />
-
-      {/* Main Dashboard Container */}
       <main className="flex-1 max-w-[1536px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-8">
-        <TeacherDashboard />
+        <ModeratorDashboard />
       </main>
     </div>
   );
 };
 
-export default TeacherDashboardPage;
+export default ModeratorDashboardPage;

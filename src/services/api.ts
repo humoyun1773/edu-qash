@@ -14,14 +14,23 @@ export const removeAuthToken = (): void => {
 
 interface RequestOptions extends RequestInit {
   data?: any;
+  ttl?: number; // Time-to-live in ms for caching GET requests
 }
 
+// Deduplication map for pending in-flight requests
+const pendingRequests = new Map<string, Promise<any>>();
+
+// In-memory cache for GET requests: url -> { timestamp, data }
+const apiCache = new Map<string, { timestamp: number; data: any }>();
+
 export async function request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
-  const { data, headers, ...customOptions } = options;
+  const { data, headers, ttl = 30000, ...customOptions } = options;
   const token = getAuthToken();
 
+  const method = customOptions.method || (data ? 'POST' : 'GET');
+
   const config: RequestInit = {
-    method: data ? 'POST' : 'GET',
+    method,
     headers: {
       'Content-Type': 'application/json',
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -38,17 +47,65 @@ export async function request<T>(endpoint: string, options: RequestOptions = {})
   const cleanEndpoint = endpoint.replace(/^\//, '');
   const url = cleanBase ? `${cleanBase}/${cleanEndpoint}` : `/${cleanEndpoint}`;
 
-  try {
-    const response = await fetch(url, config);
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: response.statusText }));
-      throw new Error(errorData.message || `API Error: ${response.status}`);
-    }
-    return await response.json();
-  } catch (error: any) {
-    console.warn(`[API] Endpoint request failed for ${url}:`, error.message);
-    throw error;
+  // Clear cache on mutations (POST, PUT, DELETE)
+  if (method !== 'GET') {
+    apiCache.clear();
   }
+
+  // Check in-memory cache for GET requests
+  if (method === 'GET' && ttl > 0) {
+    const cached = apiCache.get(url);
+    if (cached && Date.now() - cached.timestamp < ttl) {
+      return cached.data as T;
+    }
+  }
+
+  // Deduplicate in-flight GET requests to the exact same URL
+  if (method === 'GET' && pendingRequests.has(url)) {
+    return pendingRequests.get(url) as Promise<T>;
+  }
+
+  const requestPromise = (async () => {
+    try {
+      const response = await fetch(url, config);
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: response.statusText }));
+        let errorMessage = errorData.message || errorData.detail;
+        if (!errorMessage && errorData.non_field_errors) {
+          errorMessage = Array.isArray(errorData.non_field_errors) ? errorData.non_field_errors.join(', ') : String(errorData.non_field_errors);
+        }
+        if (!errorMessage && typeof errorData === 'object') {
+          const firstKey = Object.keys(errorData)[0];
+          if (firstKey) {
+            const val = errorData[firstKey];
+            errorMessage = `${firstKey}: ${Array.isArray(val) ? val.join(', ') : String(val)}`;
+          }
+        }
+        throw new Error(errorMessage || `API Error: ${response.status}`);
+      }
+      const result = await response.json();
+
+      // Store successful GET result in cache
+      if (method === 'GET' && ttl > 0) {
+        apiCache.set(url, { timestamp: Date.now(), data: result });
+      }
+
+      return result as T;
+    } catch (error: any) {
+      console.warn(`[API] Endpoint request failed for ${url}:`, error.message);
+      throw error;
+    } finally {
+      if (method === 'GET') {
+        pendingRequests.delete(url);
+      }
+    }
+  })();
+
+  if (method === 'GET') {
+    pendingRequests.set(url, requestPromise);
+  }
+
+  return requestPromise;
 }
 
 export const api = {
