@@ -13,6 +13,7 @@ import {
   TrendingUp
 } from 'lucide-react';
 import { useTeacher } from '../../../hooks/useTeacher';
+import { useToast } from '../../../context/ToastContext';
 import { Modal } from '../../../components/common/Modal';
 import { DashboardSidebar } from '../common/DashboardSidebar';
 import { DashboardSettings } from '../DashboardSettings';
@@ -21,6 +22,7 @@ import { getTeacherTabs, type TeacherTabType } from './teacherTabs';
 type QuizCategory = 'IELTS' | 'SAT' | 'CEFR' | 'General';
 
 export const TeacherDashboard: React.FC = () => {
+  const { toast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
   const teacherTab = (searchParams.get('tab') as TeacherTabType) || 'students';
   const setTeacherTab = (tab: TeacherTabType) => setSearchParams({ tab });
@@ -55,12 +57,15 @@ export const TeacherDashboard: React.FC = () => {
         durationMinutes: newQuizDuration,
       });
 
-      setSubmitSuccess(`"${newQuizTitle}" nomli yangi test muvaffaqiyatli yaratildi!`);
+      const msg = `"${newQuizTitle}" nomli yangi test muvaffaqiyatli yaratildi!`;
+      setSubmitSuccess(msg);
+      toast.success(msg);
       resetForm();
       setIsQuizModalOpen(false);
 
       setTimeout(() => setSubmitSuccess(null), 4000);
-    } catch (error) {
+    } catch (error: any) {
+      toast.error(error?.message || "Test yaratishda xatolik yuz berdi");
       console.error('Test yaratishda xatolik yuz berdi:', error);
     } finally {
       setIsSubmitting(false);

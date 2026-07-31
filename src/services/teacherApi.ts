@@ -1,33 +1,21 @@
 import { api } from './api';
 import { API_ENDPOINTS } from '../api/apiEndpoints';
 import type { Quiz, StudentProgress, TeacherScheduleItem } from '../types';
-import { MOCK_QUIZZES } from '../data/mockData';
 
 export type { StudentProgress, TeacherScheduleItem };
-
-const FALLBACK_STUDENTS: StudentProgress[] = [
-  { id: 'st_1', name: 'Shahzod Rashidov', email: 'shahzod@gmail.com', courseName: 'IELTS Masterclass 8.5', score: 'Overall Band 7.5' },
-  { id: 'st_2', name: 'Madina Saidova', email: 'madina@gmail.com', courseName: 'Digital SAT Intensive', score: 'Math 780, EBRW 720' }
-];
-
-const FALLBACK_SCHEDULE: TeacherScheduleItem[] = [
-  { day: 'Dushanba', title: 'IELTS Speaking Live Practice', time: '14:00 - 15:30' },
-  { day: 'Chorshanba', title: 'SAT Math Problem Solving', time: '16:00 - 17:30' },
-  { day: 'Juma', title: 'IELTS Writing Task 2 Evaluation', time: '18:00 - 19:30' }
-];
 
 export const teacherApi = {
   /**
    * O'qituvchiga tegishli talabalar ro'yxati
-   * Swagger: GET /auth/profile/ (teacher profilidan courses/students olinadi)
+   * Swagger: GET /auth/profile/
    */
   getStudents: async (): Promise<StudentProgress[]> => {
     try {
-      const data = await api.get<StudentProgress[]>(API_ENDPOINTS.TEACHER.STUDENTS);
-      if (Array.isArray(data) && data.length > 0) return data;
-      throw new Error('Empty');
+      const data: any = await api.get(API_ENDPOINTS.TEACHER.STUDENTS);
+      const list = Array.isArray(data) ? data : (data?.results ?? data?.students ?? []);
+      return Array.isArray(list) ? list : [];
     } catch {
-      return FALLBACK_STUDENTS;
+      return [];
     }
   },
 
@@ -36,11 +24,7 @@ export const teacherApi = {
    * Swagger: POST /quizzes/
    */
   createQuiz: async (quiz: { title: string; category: string; durationMinutes: number }): Promise<Quiz> => {
-    try {
-      return await api.post<Quiz>(API_ENDPOINTS.QUIZZES.BASE, quiz);
-    } catch {
-      return MOCK_QUIZZES[0];
-    }
+    return await api.post<Quiz>(API_ENDPOINTS.QUIZZES.BASE, quiz);
   },
 
   /**
@@ -49,27 +33,25 @@ export const teacherApi = {
    */
   getQuizzes: async (): Promise<Quiz[]> => {
     try {
-      const data = await api.get<any>(API_ENDPOINTS.QUIZZES.BASE);
+      const data: any = await api.get(API_ENDPOINTS.QUIZZES.BASE);
       const list = Array.isArray(data) ? data : (data?.results ?? []);
-      if (list.length > 0) return list;
-      throw new Error('Empty');
+      return Array.isArray(list) ? list : [];
     } catch {
-      return MOCK_QUIZZES;
+      return [];
     }
   },
 
   /**
-   * Dars jadvali
+   * Darslar jadvali
    * Swagger: GET /courses/lessons/
    */
   getSchedule: async (): Promise<TeacherScheduleItem[]> => {
     try {
-      const data = await api.get<any>(API_ENDPOINTS.TEACHER.SCHEDULE);
+      const data: any = await api.get(API_ENDPOINTS.TEACHER.SCHEDULE);
       const list = Array.isArray(data) ? data : (data?.results ?? []);
-      if (list.length > 0) return list;
-      throw new Error('Empty');
+      return Array.isArray(list) ? list : [];
     } catch {
-      return FALLBACK_SCHEDULE;
+      return [];
     }
   },
 
@@ -77,23 +59,11 @@ export const teacherApi = {
    * O'qituvchi statistikasi
    * Swagger: GET /analytics/overview/
    */
-  getCourseStats: async (): Promise<{ label: string; value: number | string }[]> => {
+  getStats: async () => {
     try {
-      const data = await api.get<any>(API_ENDPOINTS.TEACHER.STATS);
-      if (data && typeof data === 'object') {
-        return [
-          { label: 'Jami Talabalar', value: data.total_students ?? data.students_count ?? '-' },
-          { label: "O'rtacha Ball", value: data.average_score ? `${data.average_score} Band` : '-' },
-          { label: 'Topshirilgan Testlar', value: data.total_submissions ?? data.quizzes_count ?? '-' },
-        ];
-      }
-      throw new Error('Empty');
+      return await api.get(API_ENDPOINTS.TEACHER.STATS);
     } catch {
-      return [
-        { label: 'Jami Talabalar', value: 142 },
-        { label: "O'rtacha Ball", value: '7.5 Band' },
-        { label: 'Topshirilgan Testlar', value: 580 }
-      ];
+      return { totalStudents: 0, totalQuizzes: 0, averageScore: 0 };
     }
   }
 };

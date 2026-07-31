@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
-  GraduationCap, 
   Sparkles, 
   BookOpen, 
   Building2, 
@@ -20,11 +19,15 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
+import { useToast } from '../../context/ToastContext';
+import { getRoleDashboardPath } from '../../routes/AppRoutes';
 import { useNotification } from '../../context/NotificationContext';
+import { BrandLogo } from './BrandLogo';
 
 export const Navbar: React.FC = () => {
   const { role, logout, openAuthModal } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { toast } = useToast();
   const { unreadCount, notifications, markAllAsRead } = useNotification();
   const location = useLocation();
 
@@ -53,22 +56,12 @@ export const Navbar: React.FC = () => {
         <div className="flex items-center justify-between h-20">
           
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/25 group-hover:scale-105 group-hover:rotate-3 transition-all duration-300 ring-4 ring-indigo-500/10">
-              <GraduationCap className="w-6 h-6" />
-            </div>
-            <div>
-              <span className="text-xl sm:text-2xl font-black tracking-tight bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-800 dark:from-white dark:via-indigo-200 dark:to-slate-300 bg-clip-text text-transparent">
-                Eduqash
-              </span>
-              <span className="block text-[9px] font-bold text-indigo-600 dark:text-indigo-400 tracking-wider uppercase -mt-1">
-                Ecosystem Platform
-              </span>
-            </div>
-          </Link>
+          <div className="flex items-center gap-3">
+            <BrandLogo size="md" showSubtitle={true} />
+          </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden xl:flex items-center gap-1 bg-slate-100/80 dark:bg-slate-900/60 p-1.5 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-inner">
+          <nav className="hidden lg:flex items-center gap-1 bg-slate-100/80 dark:bg-slate-900/60 p-1.5 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-inner">
             <Link 
               to="/centers" 
               className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 ${
@@ -233,15 +226,18 @@ export const Navbar: React.FC = () => {
             {role !== 'guest' ? (
               <div className="flex items-center gap-2">
                 <Link
-                  to="/dashboard"
+                  to={getRoleDashboardPath(role)}
                   className="py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs shadow-lg shadow-indigo-500/20 transition-all flex items-center gap-1.5 active:scale-95"
                 >
                   <LayoutDashboard className="w-4 h-4" /> 
                   <span className="hidden sm:inline">Dashboard</span>
                 </Link>
                 <button
-                  onClick={logout}
-                  className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-500 hover:bg-rose-500 hover:text-white transition-all active:scale-95"
+                  onClick={() => {
+                    logout();
+                    toast.info("Tizimdan muvaffaqiyatli chiqdingiz");
+                  }}
+                  className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-500 hover:bg-rose-500 hover:text-white transition-all active:scale-95 cursor-pointer"
                   title="Chiqish"
                 >
                   <LogOut className="w-4 h-4" />
@@ -259,7 +255,7 @@ export const Navbar: React.FC = () => {
             {/* Mobile Menu Trigger */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="xl:hidden p-2.5 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all active:scale-95"
+              className="lg:hidden p-2.5 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all active:scale-95 cursor-pointer"
               aria-label="Menyu"
             >
               {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -272,7 +268,7 @@ export const Navbar: React.FC = () => {
 
       {/* Mobile Drawer */}
       {isMobileMenuOpen && (
-        <div className="xl:hidden bg-white/95 dark:bg-slate-950/95 backdrop-blur-2xl border-b border-slate-200 dark:border-slate-800 px-4 pt-3 pb-6 space-y-3 animate-in slide-in-from-top-4 duration-200">
+        <div className="lg:hidden bg-white/95 dark:bg-slate-950/95 backdrop-blur-2xl border-b border-slate-200 dark:border-slate-800 px-4 pt-3 pb-6 space-y-3 animate-in slide-in-from-top-4 duration-200">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-medium">
             
             <Link 

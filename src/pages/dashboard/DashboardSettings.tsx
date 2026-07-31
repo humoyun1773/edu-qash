@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { User, Lock, Bell, Moon, Sun, Shield, Save, CheckCircle2, Loader2, AlertCircle, Camera } from 'lucide-react';
+import { User, Lock, Bell, Moon, Sun, Shield, Save, CheckCircle2, Loader2, AlertCircle, Camera, Trash2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
+import { useToast } from '../../context/ToastContext';
 import { authApi } from '../../services/authApi';
 import { ImagePreviewModal } from '../../components/common/ImagePreviewModal';
 
@@ -23,6 +24,7 @@ const SUB_TABS: SubTabConfig[] = [
 export const DashboardSettings: React.FC = () => {
   const { user, updateUser } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { toast } = useToast();
 
   const [activeSubTab, setActiveSubTab] = useState<SubTabType>('profile');
   const [savedSuccess, setSavedSuccess] = useState(false);
@@ -93,9 +95,32 @@ export const DashboardSettings: React.FC = () => {
       const updatedUser = await authApi.uploadAvatar(file);
       updateUser(updatedUser);
       setSavedSuccess(true);
+      toast.success("Profil rasmi muvaffaqiyatli yangilandi!");
       setTimeout(() => setSavedSuccess(false), 3000);
     } catch (err: any) {
-      setAvatarError(err?.message || "Rasmni yuklashda xatolik yuz berdi.");
+      const errMsg = err?.message || "Rasmni yuklashda xatolik yuz berdi.";
+      setAvatarError(errMsg);
+      toast.error(errMsg);
+    } finally {
+      setAvatarUploading(false);
+    }
+  };
+
+  // Delete avatar handler
+  const handleAvatarDelete = async () => {
+    setAvatarUploading(true);
+    setAvatarError(null);
+    try {
+      const updatedUser = await authApi.deleteAvatar();
+      updateUser(updatedUser);
+      setAvatarPreview(null);
+      setSavedSuccess(true);
+      toast.success("Profil rasmi muvaffaqiyatli o'chirildi!");
+      setTimeout(() => setSavedSuccess(false), 3000);
+    } catch (err: any) {
+      const errMsg = err?.message || "Rasmni o'chirishda xatolik yuz berdi.";
+      setAvatarError(errMsg);
+      toast.error(errMsg);
     } finally {
       setAvatarUploading(false);
     }
@@ -108,19 +133,20 @@ export const DashboardSettings: React.FC = () => {
 
     try {
       if (activeSubTab === 'profile') {
-        // API ga profil ma'lumotlarini yuborish
         const updatedUser = await authApi.updateProfile({ name, username, email, phone });
-        // Context va localStorage ni yangilash
         updateUser(updatedUser);
       }
 
       setSavedSuccess(true);
       setOldPassword('');
       setNewPassword('');
+      toast.success("Profil sozlamalari muvaffaqiyatli saqlandi!");
       setTimeout(() => setSavedSuccess(false), 3000);
     } catch (error: any) {
       console.error('Sozlamalarni saqlashda xatolik:', error);
-      setSaveError(error?.message || "Ma'lumotlarni saqlashda xatolik yuz berdi.");
+      const errMsg = error?.message || "Ma'lumotlarni saqlashda xatolik yuz berdi.";
+      setSaveError(errMsg);
+      toast.error(errMsg);
     } finally {
       setIsSubmitting(false);
     }
@@ -229,18 +255,33 @@ export const DashboardSettings: React.FC = () => {
             <div className="flex-1">
               <span className="block text-sm font-bold text-slate-900 dark:text-white">Profil Rasmi</span>
               <span className="block text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">PNG, JPG, WEBP — maksimum 2MB</span>
-              <button
-                type="button"
-                onClick={() => avatarInputRef.current?.click()}
-                disabled={avatarUploading}
-                className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all disabled:opacity-60"
-              >
-                {avatarUploading ? (
-                  <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Yuklanmoqda...</>
-                ) : (
-                  <><Camera className="w-3.5 h-3.5" /> Rasm almashtirish</>
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => avatarInputRef.current?.click()}
+                  disabled={avatarUploading}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all disabled:opacity-60 cursor-pointer shadow-sm active:scale-95"
+                >
+                  {avatarUploading ? (
+                    <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Yuklanmoqda...</>
+                  ) : (
+                    <><Camera className="w-3.5 h-3.5" /> Rasm almashtirish</>
+                  )}
+                </button>
+
+                {(avatarPreview || user?.avatar) && (
+                  <button
+                    type="button"
+                    onClick={handleAvatarDelete}
+                    disabled={avatarUploading}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500 border border-rose-500/20 text-rose-500 hover:text-white text-xs font-bold transition-all disabled:opacity-60 cursor-pointer active:scale-95"
+                    title="Rasmni o'chirish"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Rasmni o'chirish</span>
+                  </button>
                 )}
-              </button>
+              </div>
               {avatarError && (
                 <p className="mt-1.5 text-[11px] text-rose-500 font-medium flex items-center gap-1">
                   <AlertCircle className="w-3 h-3" /> {avatarError}

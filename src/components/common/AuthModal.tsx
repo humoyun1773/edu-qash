@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   X, Mail, Lock, Phone, KeyRound, ArrowRight, 
-  CheckCircle2, ShieldCheck, Send, GraduationCap, 
+  CheckCircle2, ShieldCheck, Send, 
   Sparkles, ChevronDown, User, AlertCircle, Loader2, Eye, EyeOff
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 import type { UserRole } from '../../types';
+import { BrandLogo } from './BrandLogo';
 
 // Ruxsat etilgan rollar (barcha 7 ta rol)
 const ALLOWED_ROLES: { value: UserRole; label: string; desc: string; icon: string }[] = [
@@ -31,6 +33,7 @@ export const AuthModal: React.FC = () => {
     authError,
     clearError,
   } = useAuth();
+  const { toast } = useToast();
 
   // Body scroll lock when modal is open
   useEffect(() => {
@@ -131,9 +134,10 @@ export const AuthModal: React.FC = () => {
       }
       try {
         await loginWithPassword(cleanUsername, password.trim());
-        navigate('/dashboard');
-      } catch {
-        // Xato authError orqali ko'rsatiladi
+        toast.success("Tizimga muvaffaqiyatli kirdingiz!");
+        navigate('/dashboard', { replace: true });
+      } catch (err: any) {
+        toast.error(err?.message || "Kirishda xatolik yuz berdi");
       }
 
     } else if (mode === 'register') {
@@ -152,24 +156,28 @@ export const AuthModal: React.FC = () => {
       }
       try {
         const res = await register(name, email, password, selectedRole);
-        setSuccessMessage(res.message);
+        const msg = res.message || "Ro'yxatdan muvaffaqiyatli o'tdingiz!";
+        setSuccessMessage(msg);
+        toast.success(msg);
         if (email) setUsername(email);
         setMode('login'); // Muvaffaqiyatli ro'yxatdan so'ng login formiga o'tish
-      } catch {
-        // Xato authError orqali ko'rsatiladi
+      } catch (err: any) {
+        toast.error(err?.message || "Ro'yxatdan o'tishda xatolik yuz berdi");
       }
 
     } else if (mode === 'sms') {
       const ok = verifySMS(otpCode);
       if (ok) {
         setIsOtpSuccess(true);
+        toast.success("SMS kod muvaffaqiyatli tasdiqlandi!");
         setTimeout(() => {
           setIsOtpSuccess(false);
           closeAuthModal();
-          navigate('/dashboard');
+          navigate('/dashboard', { replace: true });
         }, 1000);
       } else {
         setLocalError("Noto'g'ri kod. Qayta kiriting.");
+        toast.error("Noto'g'ri SMS kod. Qayta kiriting.");
       }
 
     } else if (mode === 'forgot') {
@@ -177,7 +185,9 @@ export const AuthModal: React.FC = () => {
         setLocalError("Email manzilingizni kiriting.");
         return;
       }
-      setSuccessMessage(`Parolni tiklash havolasi ${email} manziliga yuborildi!`);
+      const msg = `Parolni tiklash havolasi ${email} manziliga yuborildi!`;
+      setSuccessMessage(msg);
+      toast.info(msg);
       setTimeout(() => {
         setMode('login');
         setSuccessMessage(null);
@@ -212,9 +222,7 @@ export const AuthModal: React.FC = () => {
 
         {/* Logo */}
         <div className="flex justify-center mb-4 relative z-10">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/25 ring-4 ring-indigo-500/10">
-            <GraduationCap className="w-8 h-8" />
-          </div>
+          <BrandLogo size="lg" showSubtitle={true} />
         </div>
 
         {/* Mode Tabs */}
@@ -574,9 +582,8 @@ export const AuthModal: React.FC = () => {
               <button
                 type="button"
                 onClick={() => {
-                  // Demo kirish
                   closeAuthModal();
-                  navigate('/dashboard');
+                  navigate('/dashboard', { replace: true });
                 }}
                 className="py-2.5 px-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200/80 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-xs font-medium flex items-center justify-center gap-2 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all active:scale-[0.98]"
               >
@@ -586,7 +593,7 @@ export const AuthModal: React.FC = () => {
                 type="button"
                 onClick={() => {
                   closeAuthModal();
-                  navigate('/dashboard');
+                  navigate('/dashboard', { replace: true });
                 }}
                 className="py-2.5 px-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200/80 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-xs font-medium flex items-center justify-center gap-2 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all active:scale-[0.98]"
               >

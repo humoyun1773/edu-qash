@@ -175,6 +175,34 @@ export const authApi = {
   },
 
   /**
+   * Avatarni o'chirish — PATCH /auth/profile/ avatar: null
+   */
+  deleteAvatar: async (): Promise<User> => {
+    const token = getAuthToken();
+    const baseUrl = API_BASE_URL;
+
+    const cleanBase = baseUrl ? baseUrl.replace(/\/$/, '') : '';
+    const url = `${cleanBase}/auth/profile/`;
+
+    const response = await fetch(url, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({ avatar: null }),
+    });
+
+    if (!response.ok) {
+      const res = await api.patch<any>(API_ENDPOINTS.AUTH.PROFILE, { avatar: null });
+      return mapBackendUser(res.user || res);
+    }
+
+    const res = await response.json();
+    return mapBackendUser(res.user || res);
+  },
+
+  /**
    * Logout: token o'chirish
    */
   logout: (): void => {

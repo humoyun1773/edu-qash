@@ -1,9 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { 
-  GraduationCap, Phone, Mail, MapPin, Send, 
+  Phone, Mail, MapPin, Send, 
   Globe, ShieldCheck, Zap, ArrowUpRight 
 } from 'lucide-react';
+import { BrandLogo } from './BrandLogo';
 
 export const Footer: React.FC = () => {
   return (
@@ -20,12 +21,7 @@ export const Footer: React.FC = () => {
           
           {/* Brand Column (2 cols wide on desktop) */}
           <div className="sm:col-span-2 space-y-4 pr-0 lg:pr-8">
-            <Link to="/" className="inline-flex items-center gap-3 group">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-pink-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform">
-                <GraduationCap className="w-6 h-6" />
-              </div>
-              <span className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">Eduqash</span>
-            </Link>
+            <BrandLogo size="lg" showSubtitle={true} />
             <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed max-w-sm">
               O‘zbekistondagi eng yirik o‘quv markazlari, online kurslar, IELTS, Digital SAT hamda CEFR tayyorgarlik platformasi.
             </p>

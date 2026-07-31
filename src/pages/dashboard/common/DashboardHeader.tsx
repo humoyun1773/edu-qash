@@ -1,12 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { 
-  GraduationCap, Search, Bell, Sun, Moon, LogOut, ChevronDown, X, Shield, Eye
+  Search, Bell, Sun, Moon, LogOut, ChevronDown, X, Shield, Eye
 } from 'lucide-react';
 import { useAuth } from '../../../context/AuthContext';
 import { useTheme } from '../../../context/ThemeContext';
+import { useToast } from '../../../context/ToastContext';
 import type { UserRole } from '../../../types';
 import { ImagePreviewModal } from '../../../components/common/ImagePreviewModal';
+import { BrandLogo } from '../../../components/common/BrandLogo';
 
 interface DashboardHeaderProps {
   onSearch?: (query: string) => void;
@@ -15,6 +17,7 @@ interface DashboardHeaderProps {
 export const DashboardHeader: React.FC<DashboardHeaderProps> = ({ onSearch }) => {
   const { user, role, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { toast } = useToast();
   const navigate = useNavigate();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -37,6 +40,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({ onSearch }) =>
   const handleLogout = () => {
     setShowUserDropdown(false);
     logout();
+    toast.info("Tizimdan muvaffaqiyatli chiqdingiz");
     navigate('/');
   };
 
@@ -73,21 +77,12 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({ onSearch }) =>
       <div className="max-w-[1536px] w-full mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3 sm:gap-4">
         
         {/* LOGO & BRAND */}
-        <Link to="/" title="Bosh sahifaga o‘tish" className="flex items-center gap-3 group shrink-0">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-lg shadow-indigo-500/25 group-hover:scale-105 transition-all ring-4 ring-indigo-500/10">
-            <GraduationCap className="w-6 h-6" />
-          </div>
-          <div className="hidden md:block">
-            <div className="flex items-center gap-2">
-              <span className="text-base font-black text-slate-900 dark:text-white tracking-wide group-hover:text-indigo-500 transition-colors">
-                Eduqash
-              </span>
-              <span className={`px-2.5 py-0.5 rounded-full border text-[10px] font-black uppercase tracking-wider ${roleMeta.badgeBg} ${roleMeta.textBg}`}>
-                {roleMeta.label}
-              </span>
-            </div>
-          </div>
-        </Link>
+        <div className="flex items-center gap-3 shrink-0">
+          <BrandLogo size="md" showSubtitle={true} />
+          <span className={`hidden lg:inline-flex px-2.5 py-0.5 rounded-full border text-[10px] font-black uppercase tracking-wider ${roleMeta.badgeBg} ${roleMeta.textBg}`}>
+            {roleMeta.label}
+          </span>
+        </div>
 
         {/* GLOBAL SEARCH BAR */}
         <div className="flex-1 max-w-md mx-1 sm:mx-4">

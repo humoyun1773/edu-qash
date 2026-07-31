@@ -1,6 +1,7 @@
-import React, { Suspense, useState, useEffect, useContext } from 'react';
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import React, { Suspense, useContext } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import type { UserRole } from '../types';
 
 import { Navbar } from '../components/common/Navbar';
 import { Footer } from '../components/common/Footer';
@@ -25,18 +26,38 @@ import { ChatPage } from '../pages/ai/ChatPage';
 import { LeaderboardPage } from '../pages/leaderboard/LeaderboardPage';
 import { CertificateVerifyPage } from '../pages/certificates/CertificateVerifyPage';
 
-const DashboardRedirector: React.FC = () => {
-  const auth = useContext(AuthContext);
-  const role = auth?.role;
+export const getRoleDashboardPath = (role?: UserRole | string): string => {
   switch (role) {
-    case 'student':      return <Navigate to="/dashboard/student" replace />;
-    case 'teacher':      return <Navigate to="/dashboard/teacher" replace />;
-    case 'moderator':    return <Navigate to="/dashboard/moderator" replace />;
-    case 'center_owner': return <Navigate to="/dashboard/center-owner" replace />;
+    case 'student':      return '/dashboard/student';
+    case 'teacher':      return '/dashboard/teacher';
+    case 'moderator':    return '/dashboard/moderator';
+    case 'center_owner': return '/dashboard/center-owner';
     case 'admin':
-    case 'super_admin':  return <Navigate to="/dashboard/admin" replace />;
-    default:             return <Navigate to="/dashboard/admin" replace />;
+    case 'super_admin':  return '/dashboard/admin';
+    default:             return '/dashboard/admin';
   }
+};
+
+interface RoleProtectedRouteProps {
+  allowedRoles: (UserRole | string)[];
+  children: React.ReactNode;
+}
+
+const RoleProtectedRoute: React.FC<RoleProtectedRouteProps> = ({ allowedRoles, children }) => {
+  const auth = useContext(AuthContext);
+  const role = auth?.role || 'guest';
+  const isAuthenticated = auth?.isAuthenticated;
+
+  if (!isAuthenticated || role === 'guest') {
+    return <Navigate to="/" replace />;
+  }
+
+  if (!allowedRoles.includes(role)) {
+    const rolePath = getRoleDashboardPath(role);
+    return <Navigate to={rolePath} replace />;
+  }
+
+  return <>{children}</>;
 };
 
 const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
@@ -50,45 +71,57 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 );
 
 export const AppRoutes: React.FC = () => {
-  const location = useLocation();
-  const [isNavigating, setIsNavigating] = useState(false);
-
-  useEffect(() => {
-    setIsNavigating(true);
-    const timer = setTimeout(() => setIsNavigating(false), 400);
-    return () => clearTimeout(timer);
-  }, [location.pathname]);
-
-  if (isNavigating) {
-    return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center">
-        <PageLoader fullScreen={true} />
-      </div>
-    );
-  }
+  const auth = useContext(AuthContext);
+  const currentRole = auth?.role;
 
   return (
     <Suspense fallback={<PageLoader />}>
       <Routes>
-        {/* Dynamic Role-Based Dashboard Routes */}
-        <Route path="/dashboard" element={
-          <PageTransition><DashboardRedirector /></PageTransition>
-        } />
-        <Route path="/dashboard/student" element={
-          <PageTransition><StudentDashboardPage /></PageTransition>
-        } />
-        <Route path="/dashboard/teacher" element={
-          <PageTransition><TeacherDashboardPage /></PageTransition>
-        } />
-        <Route path="/dashboard/moderator" element={
-          <PageTransition><ModeratorDashboardPage /></PageTransition>
-        } />
-        <Route path="/dashboard/center-owner" element={
-          <PageTransition><CenterOwnerDashboardPage /></PageTransition>
-        } />
-        <Route path="/dashboard/admin" element={
-          <PageTransition><AdminDashboardPage /></PageTransition>
-        } />
+        {/* Dynamic Role-Based Dashboard Routes with Strict Protection */}
+        <Route
+          path="/dashboard"
+          element={<Navigate to={getRoleDashboardPath(currentRole)} replace />}
+        />
+        <Route
+          path="/dashboard/student"
+          element={
+            <RoleProtectedRoute allowedRoles={['student']}>
+              <PageTransition><StudentDashboardPage /></PageTransition>
+            </RoleProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/teacher"
+          element={
+            <RoleProtectedRoute allowedRoles={['teacher']}>
+              <PageTransition><TeacherDashboardPage /></PageTransition>
+            </RoleProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/moderator"
+          element={
+            <RoleProtectedRoute allowedRoles={['moderator']}>
+              <PageTransition><ModeratorDashboardPage /></PageTransition>
+            </RoleProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/center-owner"
+          element={
+            <RoleProtectedRoute allowedRoles={['center_owner']}>
+              <PageTransition><CenterOwnerDashboardPage /></PageTransition>
+            </RoleProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/admin"
+          element={
+            <RoleProtectedRoute allowedRoles={['admin', 'super_admin']}>
+              <PageTransition><AdminDashboardPage /></PageTransition>
+            </RoleProtectedRoute>
+          }
+        />
 
         {/* Public Pages */}
         <Route path="/"            element={<PublicLayout><LandingPage /></PublicLayout>} />
