@@ -1,6 +1,40 @@
 import { useState, useEffect, useCallback } from 'react';
-import { superAdminService } from '../constants/superAdmin.service';
-import type { SystemLogItem, GlobalSettings, TenantItem, UpdateGlobalSettingsPayload } from '../constants/superAdmin.type';
+
+export interface SystemLogItem {
+  id: string;
+  level: 'info' | 'warn' | 'error';
+  message: string;
+  timestamp: string;
+}
+
+export interface GlobalSettings {
+  siteName: string;
+  maintenanceMode: boolean;
+  allowRegistrations: boolean;
+}
+
+export interface TenantItem {
+  id: string;
+  name: string;
+  subdomain: string;
+  status: 'active' | 'suspended';
+}
+
+export type UpdateGlobalSettingsPayload = Partial<GlobalSettings>;
+
+const MOCK_LOGS: SystemLogItem[] = [
+  { id: 'l1', level: 'info', message: 'System updated successfully', timestamp: 'Hozir' }
+];
+
+const MOCK_SETTINGS: GlobalSettings = {
+  siteName: 'Eduqash Platform',
+  maintenanceMode: false,
+  allowRegistrations: true
+};
+
+const MOCK_TENANTS: TenantItem[] = [
+  { id: 't1', name: 'Tashkent Branch', subdomain: 'tashkent', status: 'active' }
+];
 
 export const useSuperAdmin = () => {
   const [logs, setLogs] = useState<SystemLogItem[]>([]);
@@ -13,14 +47,9 @@ export const useSuperAdmin = () => {
     setLoading(true);
     setError(null);
     try {
-      const [lData, sData, tData] = await Promise.all([
-        superAdminService.getLogs(),
-        superAdminService.getGlobalSettings(),
-        superAdminService.getTenants()
-      ]);
-      setLogs(lData);
-      setSettings(sData);
-      setTenants(tData);
+      setLogs(MOCK_LOGS);
+      setSettings(MOCK_SETTINGS);
+      setTenants(MOCK_TENANTS);
     } catch (err: any) {
       setError(err.message || 'Super Admin ma\'lumotlarini yuklashda xatolik');
     } finally {
@@ -34,7 +63,7 @@ export const useSuperAdmin = () => {
 
   const updateSettings = async (payload: UpdateGlobalSettingsPayload) => {
     try {
-      const updated = await superAdminService.updateGlobalSettings(payload);
+      const updated = { ...MOCK_SETTINGS, ...payload };
       setSettings(updated);
       return updated;
     } catch (err: any) {
@@ -45,10 +74,9 @@ export const useSuperAdmin = () => {
 
   const deleteTenant = async (id: string) => {
     try {
-      await superAdminService.deleteTenant(id);
       setTenants(prev => prev.filter(t => t.id !== id));
     } catch (err: any) {
-      setError(err.message || 'Tenantni o\'chirishda xatolik');
+      setError(err.message || "Tenantni o'chirishda xatolik");
       throw err;
     }
   };

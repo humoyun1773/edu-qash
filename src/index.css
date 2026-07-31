@@ -435,3 +435,53 @@ select:focus, .select-custom:focus {
   animation: blur-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+/* ─── Media & Responsive Design System ─────────────────────────────────── */
+img, video, iframe, canvas, audio {
+  max-width: 100%;
+  height: auto;
+}
+
+.media-aspect-video {
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  object-fit: cover;
+}
+
+.media-aspect-square {
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  object-fit: cover;
+}
+
+.media-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.media-card:hover img,
+.media-card:hover video {
+  transform: scale(1.04);
+}
+
+/* Mobile Screen Responsiveness Safeguards */
+@media (max-width: 640px) {
+  html, body {
+    overflow-x: hidden !important;
+  }
+  
+  .table-responsive {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .modal-mobile-fit {
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+}
+
+

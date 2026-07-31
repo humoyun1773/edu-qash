@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
-import { chatService } from '../constants/chat.service';
-import type { ChatThreadItem } from '../constants/chat.type';
+import { chatApi } from '../services/chatApi';
+import type { ChatThread } from '../types';
 
 export const useChat = () => {
-  const [threads, setThreads] = useState<ChatThreadItem[]>([]);
+  const [threads, setThreads] = useState<ChatThread[]>([]);
   const [activeThreadId, setActiveThreadId] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -12,7 +12,7 @@ export const useChat = () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await chatService.getThreads();
+      const data = await chatApi.getThreads();
       setThreads(data);
       if (data.length > 0 && !activeThreadId) {
         setActiveThreadId(data[0].id);
@@ -30,7 +30,7 @@ export const useChat = () => {
 
   const sendMessage = async (threadId: string, text: string) => {
     try {
-      const newMsg = await chatService.sendMessage({ threadId, text });
+      const newMsg = await chatApi.sendMessage(threadId, text);
       setThreads(prev => prev.map(t => {
         if (t.id === threadId) {
           return {

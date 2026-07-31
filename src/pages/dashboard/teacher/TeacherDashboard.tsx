@@ -2,18 +2,14 @@ import React, { useState } from 'react';
 import { 
   Users, 
   Plus, 
-  Sparkles, 
   Calendar, 
   CheckCircle2, 
   Loader2, 
   BookOpenCheck, 
   Clock, 
-  GraduationCap, 
-  Search,
   Bot,
   ArrowUpRight,
-  TrendingUp,
-  UserCheck
+  TrendingUp
 } from 'lucide-react';
 import { useTeacher } from '../../../hooks/useTeacher';
 import { Modal } from '../../../components/common/Modal';

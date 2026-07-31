@@ -46,6 +46,7 @@ export const MOCK_CAMBRIDGE_BOOKS: CambridgeBook[] = [];
 export const MOCK_QUIZZES: Quiz[] = [];
 export const MOCK_CERTIFICATES: CertificateItem[] = [];
 export const MOCK_PAYMENTS: PaymentTransaction[] = [];
+export const MOCK_RESULTS: any[] = [];
 export const MOCK_CHATS: ChatThread[] = [];
 export const MOCK_ANALYTICS: PlatformAnalytics = {
   dailyVisitors: [0, 0, 0, 0, 0, 0, 0],

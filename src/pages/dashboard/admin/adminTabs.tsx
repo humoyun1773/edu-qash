@@ -1,4 +1,3 @@
-import React from 'react';
 import { Users, BookOpen, CreditCard, ShieldCheck, Settings } from 'lucide-react';
 import type { SidebarTabItem } from '../common/DashboardSidebar';
 

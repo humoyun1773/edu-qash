@@ -1,9 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
-import { coursesService } from '../constants/courses.service';
-import type { CourseItem, CreateCoursePayload, UpdateCoursePayload } from '../constants/courses.type';
+import { coursesApi } from '../services/coursesApi';
+import type { Course } from '../types';
+
+export type CreateCoursePayload = Partial<Course>;
+export type UpdateCoursePayload = Partial<Course>;
 
 export const useCourses = (category?: string) => {
-  const [courses, setCourses] = useState<CourseItem[]>([]);
+  const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -11,7 +14,7 @@ export const useCourses = (category?: string) => {
     setLoading(true);
     setError(null);
     try {
-      const data = await coursesService.getCourses(category);
+      const data = await coursesApi.getCourses(category);
       setCourses(data);
     } catch (err: any) {
       setError(err.message || 'Kurslarni yuklashda xatolik yuz berdi');
@@ -26,7 +29,7 @@ export const useCourses = (category?: string) => {
 
   const createCourse = async (payload: CreateCoursePayload) => {
     try {
-      const created = await coursesService.createCourse(payload);
+      const created = await coursesApi.createCourse(payload);
       setCourses(prev => [created, ...prev]);
       return created;
     } catch (err: any) {
@@ -37,7 +40,7 @@ export const useCourses = (category?: string) => {
 
   const updateCourse = async (id: string, payload: UpdateCoursePayload) => {
     try {
-      const updated = await coursesService.updateCourse(id, payload);
+      const updated = await coursesApi.updateCourse(id, payload);
       setCourses(prev => prev.map(c => c.id === id ? updated : c));
       return updated;
     } catch (err: any) {
@@ -48,16 +51,16 @@ export const useCourses = (category?: string) => {
 
   const deleteCourse = async (id: string) => {
     try {
-      await coursesService.deleteCourse(id);
+      await coursesApi.deleteCourse(id);
       setCourses(prev => prev.filter(c => c.id !== id));
     } catch (err: any) {
-      setError(err.message || 'Kursni o\'chirishda xatolik');
+      setError(err.message || "Kursni o'chirishda xatolik");
       throw err;
     }
   };
 
   const enrollCourse = async (courseId: string, paymentMethod: string, promoCode?: string) => {
-    return await coursesService.enrollCourse({ courseId, paymentMethod, promoCode });
+    return await coursesApi.enrollCourse(courseId, paymentMethod, promoCode);
   };
 
   return {

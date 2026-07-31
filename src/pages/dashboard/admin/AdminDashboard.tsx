@@ -8,14 +8,9 @@ import {
   Trash2, 
   CheckCircle2, 
   Loader2,
-  Sparkles,
   TrendingUp,
-  UserCheck,
   Search,
-  Filter,
   Activity,
-  Layers,
-  ArrowUpRight,
   DollarSign
 } from 'lucide-react';
 import { useAdminUsers } from '../../../hooks/useAdminUsers';
@@ -25,8 +20,10 @@ import { DashboardSidebar } from '../common/DashboardSidebar';
 import { DashboardSettings } from '../DashboardSettings';
 import { getAdminTabs, type AdminTabType } from './adminTabs';
 import type { UserRole, CourseCategory } from '../../../types';
+import { useToast } from '../../../context/ToastContext';
 
 export const AdminDashboard: React.FC = () => {
+  const { toast, confirm } = useToast();
   const [adminTab, setAdminTab] = useState<AdminTabType>('users');
   const { users: usersList, payments: paymentsList, createUser, deleteUser } = useAdminUsers();
   const { courses, createCourse, deleteCourse } = useCourses();
@@ -85,9 +82,11 @@ export const AdminDashboard: React.FC = () => {
         email: newUserEmail.trim(),
         role: newUserRole,
       });
+      toast.success('Yangi foydalanuvchi muvaffaqiyatli qo‘shildi!');
       handleCloseUserModal();
     } catch (error) {
       console.error('Foydalanuvchi yaratishda xatolik:', error);
+      toast.error('Foydalanuvchi yaratishda xatolik yuz berdi!');
     } finally {
       setIsSubmitting(false);
     }
@@ -114,24 +113,40 @@ export const AdminDashboard: React.FC = () => {
         level: 'All Levels',
         duration: '1 Month'
       });
+      toast.success('Yangi kurs muvaffaqiyatli yaratildi!');
       handleCloseCourseModal();
     } catch (error) {
       console.error('Kurs yaratishda xatolik:', error);
+      toast.error('Kurs yaratishda xatolik yuz berdi!');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleDeleteUser = async (id: string) => {
-    if (window.confirm('Haqiqatan ham ushbu foydalanuvchini o‘chirmoqchimisiz?')) {
-      await deleteUser(id);
-    }
+    confirm({
+      title: 'Foydalanuvchini o‘chirish',
+      message: 'Haqiqatan ham ushbu foydalanuvchini o‘chirmoqchimisiz?',
+      type: 'danger',
+      confirmText: 'O‘chirish',
+      onConfirm: async () => {
+        await deleteUser(id);
+        toast.success('Foydalanuvchi muvaffaqiyatli o‘chirildi!');
+      }
+    });
   };
 
   const handleDeleteCourse = async (id: string) => {
-    if (window.confirm('Haqiqatan ham ushbu kursni o‘chirmoqchimisiz?')) {
-      await deleteCourse(id);
-    }
+    confirm({
+      title: 'Kursni o‘chirish',
+      message: 'Haqiqatan ham ushbu kursni o‘chirmoqchimisiz?',
+      type: 'danger',
+      confirmText: 'O‘chirish',
+      onConfirm: async () => {
+        await deleteCourse(id);
+        toast.success('Kurs muvaffaqiyatli o‘chirildi!');
+      }
+    });
   };
 
   const adminTabs = getAdminTabs(usersList.length, paymentsList.length);

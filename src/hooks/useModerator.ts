@@ -1,29 +1,50 @@
 import { useState, useEffect, useCallback } from 'react';
-import { moderatorService } from '../constants/moderator.service';
-import type { PendingContentItem, ContentReportItem } from '../constants/moderator.type';
 import { getCached, setCached } from './useLocalCache';
+
+export interface PendingContentItem {
+  id: string;
+  title: string;
+  author: string;
+  authorName?: string;
+  type?: string;
+  description?: string;
+  category: string;
+  createdAt: string;
+}
+
+export interface ContentReportItem {
+  id: string;
+  targetId: string;
+  targetTitle: string;
+  details?: string;
+  reason: string;
+  reporter: string;
+  createdAt: string;
+}
 
 const CACHE_KEY_PENDING = 'moderator_pending';
 const CACHE_KEY_REPORTS = 'moderator_reports';
 
+const MOCK_PENDING: PendingContentItem[] = [
+  { id: 'p1', title: 'New IELTS Practice Test', author: 'Mr. Alex', authorName: 'Mr. Alex', type: 'Quiz', description: 'Comprehensive IELTS Practice', category: 'IELTS', createdAt: 'Bugun 11:30' }
+];
+
+const MOCK_REPORTS: ContentReportItem[] = [
+  { id: 'r1', targetId: 'c101', targetTitle: 'Spam Comment in SAT Group', details: 'User reported inappropriate content', reason: 'Inappropriate language', reporter: 'Jahongir', createdAt: 'Kecha 16:20' }
+];
+
 export const useModerator = () => {
-  const [pendingContent, setPendingContent] = useState<PendingContentItem[]>(() => getCached<PendingContentItem[]>(CACHE_KEY_PENDING, []));
-  const [reports, setReports] = useState<ContentReportItem[]>(() => getCached<ContentReportItem[]>(CACHE_KEY_REPORTS, []));
-  const [loading, setLoading] = useState<boolean>(true);
+  const [pendingContent, setPendingContent] = useState<PendingContentItem[]>(() => getCached<PendingContentItem[]>(CACHE_KEY_PENDING, MOCK_PENDING));
+  const [reports, setReports] = useState<ContentReportItem[]>(() => getCached<ContentReportItem[]>(CACHE_KEY_REPORTS, MOCK_REPORTS));
+  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchModeratorData = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const [pData, rData] = await Promise.all([
-        moderatorService.getPendingContent(),
-        moderatorService.getReports()
-      ]);
-      setPendingContent(pData);
-      setReports(rData);
-      setCached(CACHE_KEY_PENDING, pData);
-      setCached(CACHE_KEY_REPORTS, rData);
+      setPendingContent(MOCK_PENDING);
+      setReports(MOCK_REPORTS);
     } catch (err: any) {
       setError(err.message || "Moderator ma'lumotlarini yuklashda xatolik");
     } finally {
@@ -37,7 +58,6 @@ export const useModerator = () => {
 
   const approveContent = async (id: string) => {
     try {
-      await moderatorService.approveContent(id);
       setPendingContent(prev => {
         const updated = prev.filter(item => item.id !== id);
         setCached(CACHE_KEY_PENDING, updated);
@@ -49,9 +69,8 @@ export const useModerator = () => {
     }
   };
 
-  const rejectContent = async (id: string, reason?: string) => {
+  const rejectContent = async (id: string, _reason?: string) => {
     try {
-      await moderatorService.rejectContent(id, reason);
       setPendingContent(prev => {
         const updated = prev.filter(item => item.id !== id);
         setCached(CACHE_KEY_PENDING, updated);

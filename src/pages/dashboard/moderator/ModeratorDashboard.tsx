@@ -8,8 +8,7 @@ import {
   Sparkles, 
   User, 
   Clock, 
-  AlertTriangle,
-  FileText
+  AlertTriangle
 } from 'lucide-react';
 import { useModerator } from '../../../hooks/useModerator';
 import { DashboardSidebar } from '../common/DashboardSidebar';

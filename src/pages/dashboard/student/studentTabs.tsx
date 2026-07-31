@@ -1,4 +1,3 @@
-import React from 'react';
 import { BookOpen, FileQuestion, Award, Settings } from 'lucide-react';
 import type { SidebarTabItem } from '../common/DashboardSidebar';
 

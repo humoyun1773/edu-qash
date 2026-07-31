@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
-import { adminPanelService } from '../constants/adminPanel.service';
-import type { AdminUser, AdminPayment, AdminAnalytics, CreateAdminUserPayload, UpdateAdminUserPayload } from '../constants/admin.type';
+import { adminApi } from '../services/adminApi';
+import type { User as AdminUser, PaymentTransaction as AdminPayment, PlatformAnalytics as AdminAnalytics, UserRole } from '../types';
 import { getCached, setCached } from './useLocalCache';
 
-// Cache kalitlari
+export type CreateAdminUserPayload = { name: string; email: string; role: UserRole };
+export type UpdateAdminUserPayload = Partial<AdminUser>;
+
 const CACHE_KEY_USERS = 'admin_users';
 const CACHE_KEY_PAYMENTS = 'admin_payments';
 const CACHE_KEY_ANALYTICS = 'admin_analytics';
@@ -20,14 +22,13 @@ export const useAdminUsers = () => {
     setError(null);
     try {
       const [uData, pData, aData] = await Promise.all([
-        adminPanelService.getUsers(),
-        adminPanelService.getPayments(),
-        adminPanelService.getAnalytics()
+        adminApi.getUsers(),
+        adminApi.getPayments(),
+        adminApi.getAnalytics()
       ]);
       setUsers(uData);
       setPayments(pData);
       setAnalytics(aData);
-      // API dan kelgan ma'lumotlarni cache ga saqlash
       setCached(CACHE_KEY_USERS, uData);
       setCached(CACHE_KEY_PAYMENTS, pData);
       setCached(CACHE_KEY_ANALYTICS, aData);
@@ -44,10 +45,10 @@ export const useAdminUsers = () => {
 
   const createUser = async (payload: CreateAdminUserPayload) => {
     try {
-      const created = await adminPanelService.createUser(payload);
+      const created = await adminApi.createUser(payload);
       setUsers(prev => {
         const updated = [created, ...prev];
-        setCached(CACHE_KEY_USERS, updated); // Cache yangilash
+        setCached(CACHE_KEY_USERS, updated);
         return updated;
       });
       return created;
@@ -59,7 +60,7 @@ export const useAdminUsers = () => {
 
   const updateUser = async (id: string, payload: UpdateAdminUserPayload) => {
     try {
-      const updated = await adminPanelService.updateUser(id, payload);
+      const updated = await adminApi.updateUser(id, payload);
       setUsers(prev => {
         const newList = prev.map(u => u.id === id ? updated : u);
         setCached(CACHE_KEY_USERS, newList);
@@ -74,7 +75,7 @@ export const useAdminUsers = () => {
 
   const deleteUser = async (id: string) => {
     try {
-      await adminPanelService.deleteUser(id);
+      await adminApi.deleteUser(id);
       setUsers(prev => {
         const newList = prev.filter(u => u.id !== id);
         setCached(CACHE_KEY_USERS, newList);
@@ -88,7 +89,7 @@ export const useAdminUsers = () => {
 
   const blockUser = async (id: string) => {
     try {
-      await adminPanelService.blockUser(id);
+      await adminApi.blockUser(id);
     } catch (err: any) {
       setError(err.message || 'Foydalanuvchini bloklashda xatolik');
       throw err;

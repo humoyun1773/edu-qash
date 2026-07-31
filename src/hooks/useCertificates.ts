@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { certificatesService } from '../constants/certificates.service';
-import type { CertificateItem } from '../constants/certificates.type';
+import { examsApi } from '../services/examsApi';
+import type { CertificateItem } from '../types';
 
 export const useCertificates = () => {
   const [certificates, setCertificates] = useState<CertificateItem[]>([]);
@@ -11,7 +11,7 @@ export const useCertificates = () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await certificatesService.getStudentCertificates();
+      const data = await examsApi.getStudentCertificates();
       setCertificates(data);
     } catch (err: any) {
       setError(err.message || 'Sertifikatlarni yuklashda xatolik');
@@ -25,7 +25,7 @@ export const useCertificates = () => {
   }, [fetchCertificates]);
 
   const verifyCertificate = async (uniqueId: string) => {
-    return await certificatesService.verifyCertificate(uniqueId);
+    return await examsApi.verifyCertificate(uniqueId);
   };
 
   return {

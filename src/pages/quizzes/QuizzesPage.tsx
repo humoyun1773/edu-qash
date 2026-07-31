@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { BrainCircuit, Clock, ShieldAlert, Trophy, FileSpreadsheet, ArrowRight, Upload, Loader2, X } from 'lucide-react';
 import { useQuizzes } from '../../hooks/useQuizzes';
-import type { QuizItem } from '../../constants/quizzes.type';
+import type { Quiz as QuizItem } from '../../types';
+import { useToast } from '../../context/ToastContext';
 
 export const QuizzesPage: React.FC = () => {
+  const { toast } = useToast();
   const { quizzes, loading } = useQuizzes();
   const [activeQuiz, setActiveQuiz] = useState<QuizItem | null>(null);
   const [currentQIndex, setCurrentQIndex] = useState<number>(0);
@@ -54,7 +56,7 @@ export const QuizzesPage: React.FC = () => {
     let wrong = 0;
     let score = 0;
 
-    activeQuiz.questions.forEach((q, idx) => {
+    activeQuiz.questions.forEach((q: any, idx: number) => {
       const userAns = selectedAnswers[idx];
       const pointValue = q.points ?? 1;
 
@@ -173,7 +175,7 @@ export const QuizzesPage: React.FC = () => {
                 </p>
 
                 <div className="space-y-2.5">
-                  {activeQuiz.questions[currentQIndex]?.options.map((opt, i) => {
+                  {activeQuiz.questions[currentQIndex]?.options.map((opt: string, i: number) => {
                     const isSelected = selectedAnswers[currentQIndex] === i;
                     return (
                       <button
@@ -275,7 +277,7 @@ export const QuizzesPage: React.FC = () => {
 
             <button
               onClick={() => {
-                alert('25 ta yangi savol muvaffaqiyatli Question Bankga qo‘shildi!');
+                toast.success('25 ta yangi savol muvaffaqiyatli Question Bankga qo‘shildi!', 'Excel Import');
                 setIsExcelModalOpen(false);
               }}
               className="w-full btn-primary py-3 text-xs justify-center font-bold shadow-md shadow-indigo-600/30"

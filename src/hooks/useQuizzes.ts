@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
-import { quizzesService } from '../constants/quizzes.service';
-import type { QuizItem } from '../constants/quizzes.type';
+import { quizzesApi } from '../services/quizzesApi';
+import type { Quiz } from '../types';
 
 export const useQuizzes = () => {
-  const [quizzes, setQuizzes] = useState<QuizItem[]>([]);
+  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -11,7 +11,7 @@ export const useQuizzes = () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await quizzesService.getQuizzes();
+      const data = await quizzesApi.getQuizzes();
       setQuizzes(data);
     } catch (err: any) {
       setError(err.message || 'Testlarni yuklashda xatolik yuz berdi');
@@ -25,7 +25,7 @@ export const useQuizzes = () => {
   }, [fetchQuizzes]);
 
   const submitQuiz = async (quizId: string, answers: Record<number, number>) => {
-    return await quizzesService.submitQuizResult({ quizId, answers });
+    return await quizzesApi.submitQuizResult(quizId, answers);
   };
 
   return {

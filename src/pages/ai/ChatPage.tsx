@@ -1,28 +1,63 @@
-import React, { useState } from 'react';
-import { MessageSquare, Send, Paperclip, Mic, Loader2 } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { MessageSquare, Send, Paperclip, Mic, Loader2, Image as ImageIcon, FileText, X } from 'lucide-react';
 import { useChat } from '../../hooks/useChat';
+import { useToast } from '../../context/ToastContext';
 
 export const ChatPage: React.FC = () => {
+  const { toast } = useToast();
   const { threads, activeThread, activeThreadId, setActiveThreadId, loading, sendMessage } = useChat();
   const [inputMsg, setInputMsg] = useState('');
   const [isRecordingVoice, setIsRecordingVoice] = useState(false);
+  const [voiceSeconds, setVoiceSeconds] = useState(0);
+  const [attachedFile, setAttachedFile] = useState<{ name: string; url: string; type: string } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const timerRef = useRef<any>(null);
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inputMsg.trim() || !activeThreadId) return;
+    if ((!inputMsg.trim() && !attachedFile) || !activeThreadId) return;
 
-    const textToSend = inputMsg;
+    let textToSend = inputMsg.trim();
+    if (attachedFile) {
+      textToSend = `[Fayl: ${attachedFile.name}] ${textToSend}`;
+    }
+
     setInputMsg('');
+    setAttachedFile(null);
     await sendMessage(activeThreadId, textToSend);
   };
 
   const handleSimulateVoice = () => {
     if (!activeThreadId) return;
-    setIsRecordingVoice(true);
-    setTimeout(async () => {
+    if (isRecordingVoice) {
+      // Stop recording
+      clearInterval(timerRef.current);
       setIsRecordingVoice(false);
-      await sendMessage(activeThreadId, '🎤 Ovozli xabar (0:12)');
-    }, 1500);
+      const recordedTime = voiceSeconds || 3;
+      setVoiceSeconds(0);
+      sendMessage(activeThreadId, `🎤 Ovozli xabar (0:${recordedTime < 10 ? '0' + recordedTime : recordedTime})`);
+      toast.success('Ovozli xabar yuborildi', 'Media');
+    } else {
+      // Start recording
+      setIsRecordingVoice(true);
+      setVoiceSeconds(1);
+      timerRef.current = setInterval(() => {
+        setVoiceSeconds((prev) => prev + 1);
+      }, 1000);
+    }
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const fileUrl = URL.createObjectURL(file);
+    setAttachedFile({
+      name: file.name,
+      url: fileUrl,
+      type: file.type.startsWith('image/') ? 'image' : 'document',
+    });
+    toast.success(`${file.name} biriktirildi`, 'Fayl Biriktirish');
   };
 
   return (
@@ -39,10 +74,10 @@ export const ChatPage: React.FC = () => {
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Hozircha faol chat suhbatlari mavjud emas.</p>
         </div>
       ) : (
-        <div className="glass-card overflow-hidden border-slate-200 dark:border-slate-800 grid grid-cols-1 md:grid-cols-3 h-[650px]">
+        <div className="glass-card overflow-hidden border-slate-200 dark:border-slate-800 grid grid-cols-1 md:grid-cols-3 h-[680px]">
           
           {/* Threads Sidebar */}
-          <div className="border-r border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/60 p-4 space-y-4">
+          <div className="border-r border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/60 p-4 space-y-4 overflow-y-auto">
             <div className="flex items-center justify-between">
               <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <MessageSquare className="w-4 h-4 text-indigo-500 dark:text-indigo-400" /> Chatlar
@@ -91,7 +126,7 @@ export const ChatPage: React.FC = () => {
 
               {/* Messages Window */}
               <div className="p-6 space-y-4 overflow-y-auto flex-1">
-                {(activeThread.messages || []).map((m) => (
+                {(activeThread.messages || []).map((m: any) => (
                   <div
                     key={m.id}
                     className={`flex gap-3 max-w-md ${m.isMe ? 'ml-auto flex-row-reverse' : ''}`}
@@ -110,6 +145,41 @@ export const ChatPage: React.FC = () => {
                 ))}
               </div>
 
+              {/* Voice Recording Pill Banner */}
+              {isRecordingVoice && (
+                <div className="px-4 py-2 bg-rose-500/10 border-t border-rose-500/20 text-rose-600 dark:text-rose-400 text-xs font-bold flex items-center justify-between animate-pulse">
+                  <span className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-rose-600 animate-ping" />
+                    Ovoz yozib olinmoqda... (0:{voiceSeconds < 10 ? '0' + voiceSeconds : voiceSeconds})
+                  </span>
+                  <button type="button" onClick={handleSimulateVoice} className="text-xs font-black underline">
+                    To'xtatish & Yuborish
+                  </button>
+                </div>
+              )}
+
+              {/* Attached File Preview Bar */}
+              {attachedFile && (
+                <div className="px-4 py-2 bg-indigo-500/10 border-t border-indigo-500/20 text-indigo-600 dark:text-indigo-300 text-xs font-semibold flex items-center justify-between">
+                  <span className="flex items-center gap-2 truncate">
+                    {attachedFile.type === 'image' ? <ImageIcon className="w-4 h-4 text-indigo-500" /> : <FileText className="w-4 h-4 text-emerald-500" />}
+                    <span className="truncate">{attachedFile.name}</span>
+                  </span>
+                  <button type="button" onClick={() => setAttachedFile(null)} className="p-1 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg">
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
+
+              {/* Hidden File Input */}
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileSelect}
+                accept="image/*,application/pdf"
+                className="hidden"
+              />
+
               {/* Chat Form */}
               <form onSubmit={handleSend} className="p-4 border-t border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-950/60 flex items-center gap-2">
                 <button
@@ -122,10 +192,12 @@ export const ChatPage: React.FC = () => {
                 >
                   <Mic className="w-4 h-4" />
                 </button>
+
                 <button
                   type="button"
-                  onClick={() => alert('Fayl biriktirish simulatori!')}
+                  onClick={() => fileInputRef.current?.click()}
                   className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all"
+                  title="Rasm yoki PDF biriktirish"
                 >
                   <Paperclip className="w-4 h-4" />
                 </button>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Building2, Star, ArrowRight, ShieldCheck, MapPin, BookOpen, Users, Clock, Loader2 } from 'lucide-react';
+import { Building2, Star, ArrowRight, ShieldCheck, MapPin, BookOpen, Users, Clock } from 'lucide-react';
 import { centersApi } from '../../services/centersApi';
 import type { LearningCenter } from '../../types';
 

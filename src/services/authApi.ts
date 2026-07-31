@@ -12,6 +12,7 @@ function mapBackendUser(backendUser: any, fallbackRole?: UserRole): User {
   return {
     id: backendUser.id || `usr_${Date.now()}`,
     name: [backendUser.first_name, backendUser.last_name].filter(Boolean).join(' ') || backendUser.username || backendUser.email?.split('@')[0] || 'Foydalanuvchi',
+    username: backendUser.username || '',
     email: backendUser.email || '',
     phone: backendUser.phone || '+998 90 000 00 00',
     role: (backendUser.role as UserRole) || fallbackRole || 'student',
@@ -115,6 +116,30 @@ export const authApi = {
    */
   verifySMS: (_otpCode: string): boolean => {
     return true;
+  },
+
+  /**
+   * Profilni yangilash
+   * Backend: PATCH /auth/profile/
+   */
+  updateProfile: async (data: {
+    name?: string;
+    username?: string;
+    email?: string;
+    phone?: string;
+  }): Promise<User> => {
+    const payload: any = {};
+    if (data.name) {
+      const parts = data.name.trim().split(' ');
+      payload.first_name = parts[0] || '';
+      payload.last_name = parts.slice(1).join(' ') || '';
+    }
+    if (data.username !== undefined) payload.username = data.username;
+    if (data.email !== undefined) payload.email = data.email;
+    if (data.phone !== undefined) payload.phone = data.phone;
+
+    const res = await api.patch<any>(API_ENDPOINTS.AUTH.PROFILE, payload);
+    return mapBackendUser(res.user || res);
   },
 
   /**

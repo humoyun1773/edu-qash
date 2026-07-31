@@ -7,15 +7,16 @@ import {
   Star, 
   X,
   Lock,
-  CheckCircle2,
-  Loader2
+  CheckCircle2
 } from 'lucide-react';
 import { coursesApi } from '../../services/coursesApi';
 import type { Course } from '../../types';
 import { useAuth } from '../../context/AuthContext';
 import { PageLoader } from '../../components/common/PageLoader';
+import { useToast } from '../../context/ToastContext';
 
 export const CoursesPage: React.FC = () => {
+  const { toast } = useToast();
   const { openAuthModal, role } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [courses, setCourses] = useState<Course[]>([]);
@@ -50,7 +51,7 @@ export const CoursesPage: React.FC = () => {
     setTimeout(() => {
       setPaymentSuccess(false);
       setIsCheckoutOpen(false);
-      alert('Kursga muvaffaqiyatli a’zo bo‘ldingiz! Dashboard bo‘limida darslarni boshlashingiz mumkin.');
+      toast.success('Kursga muvaffaqiyatli a’zo bo‘ldingiz! Dashboard bo‘limida darslarni boshlashingiz mumkin.', 'Xarid Muvaffaqiyatli');
     }, 1500);
   };
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   X, Mail, Lock, Phone, KeyRound, ArrowRight, 
@@ -8,11 +8,15 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import type { UserRole } from '../../types';
 
-// Ruxsat etilgan rollar (backend cheklovi)
-const ALLOWED_ROLES: { value: UserRole; label: string }[] = [
-  { value: 'student', label: 'Talaba / Student' },
-  { value: 'teacher', label: "O'qituvchi / Teacher" },
-  { value: 'center_owner', label: "O'quv Markazi Egasi" },
+// Ruxsat etilgan rollar (barcha 7 ta rol)
+const ALLOWED_ROLES: { value: UserRole; label: string; desc: string; icon: string }[] = [
+  { value: 'student', label: 'Talaba / Student', desc: 'Dars va interaktiv testlar', icon: '🎓' },
+  { value: 'teacher', label: "O'qituvchi", desc: 'Topshiriq va dars berish', icon: '👨‍🏫' },
+  { value: 'center_owner', label: "Markaz Rahbari", desc: 'Markazni boshqarish va tahlil', icon: '🏢' },
+  { value: 'moderator', label: "Moderator", desc: 'Kontent va sharhlarni tekshirish', icon: '🛡️' },
+  { value: 'admin', label: "Administrator", desc: 'Platforma admin paneli', icon: '⚡' },
+  { value: 'super_admin', label: "Super Admin", desc: 'Bosh boshqaruv va tizim', icon: '👑' },
+  { value: 'guest', label: "Mehmon / Guest", desc: 'Platforma bilan tanishish', icon: '👤' },
 ];
 
 export const AuthModal: React.FC = () => {
@@ -56,10 +60,36 @@ export const AuthModal: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [phone, setPhone] = useState('');
+  const [phone, setPhone] = useState('+998 ');
   const [selectedRole, setSelectedRole] = useState<UserRole>('student');
   const [otpCode, setOtpCode] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+
+  // Telefon raqamni formatlash: faqat raqamlar, +998 o'chirilmaydi
+  const handlePhoneChange = (val: string) => {
+    let digits = val.replace(/\D/g, '');
+    if (digits.startsWith('998')) {
+      digits = digits.slice(3);
+    }
+    digits = digits.slice(0, 9); // ko'pi bilan 9 ta raqam
+
+    let formatted = '+998';
+    if (digits.length > 0) {
+      formatted += ' ' + digits.slice(0, 2);
+    } else {
+      formatted += ' ';
+    }
+    if (digits.length > 2) {
+      formatted += ' ' + digits.slice(2, 5);
+    }
+    if (digits.length > 5) {
+      formatted += ' ' + digits.slice(5, 7);
+    }
+    if (digits.length > 7) {
+      formatted += ' ' + digits.slice(7, 9);
+    }
+    setPhone(formatted);
+  };
 
   // UI state
   const [localError, setLocalError] = useState<string | null>(null);
@@ -164,7 +194,9 @@ export const AuthModal: React.FC = () => {
       style={{ touchAction: 'none' }}
     >
       {/* Modal Card */}
-      <div className="relative w-full max-w-md overflow-hidden rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-6 sm:p-8 shadow-2xl transition-all text-slate-900 dark:text-white">
+      <div className={`relative w-full overflow-hidden rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-6 sm:p-8 shadow-2xl transition-all duration-300 text-slate-900 dark:text-white ${
+        mode === 'register' ? 'max-w-xl sm:max-w-2xl' : 'max-w-md'
+      }`}>
         
         {/* Ambient Glow */}
         <div className="absolute -top-12 -right-12 w-40 h-40 bg-indigo-500/15 rounded-full blur-3xl pointer-events-none" />
@@ -248,72 +280,210 @@ export const AuthModal: React.FC = () => {
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4 relative z-10">
 
-          {/* Rol tanlash (faqat register) */}
+          {/* REGISTER MODE FIELDS (2-COLUMN FLEX/GRID) */}
           {mode === 'register' && (
-            <div>
-              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5 flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-indigo-500" /> Platformadagi rolingiz
-              </label>
-              <div className="relative">
-                <select
-                  value={selectedRole}
-                  onChange={(e) => setSelectedRole(e.target.value as UserRole)}
-                  className="w-full appearance-none bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition-all cursor-pointer pr-10"
-                >
-                  {ALLOWED_ROLES.map(r => (
-                    <option key={r.value} value={r.value} className="bg-white dark:bg-slate-900">
-                      {r.label}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 top-3 pointer-events-none" />
+            <div className="space-y-4">
+              {/* Rol tanlash */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-indigo-500" /> Platformadagi rolingizni tanlang
+                </label>
+                
+                {/* Clean Dropdown Select */}
+                <div className="relative">
+                  <select
+                    value={selectedRole}
+                    onChange={(e) => setSelectedRole(e.target.value as UserRole)}
+                    className="w-full appearance-none bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition-all cursor-pointer pr-10"
+                  >
+                    {ALLOWED_ROLES.map(r => (
+                      <option key={r.value} value={r.value} className="bg-white dark:bg-slate-900">
+                        {r.icon} {r.label} — {r.desc}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 top-3 pointer-events-none" />
+                </div>
+              </div>
+
+              {/* 2-Column Inputs Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                {/* Ism va Familiya */}
+                <div>
+                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                    Ism va Familiya
+                  </label>
+                  <div className="relative">
+                    <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                    <input
+                      type="text"
+                      required
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="Abdullayev Jasur"
+                      className="w-full bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition-all"
+                    />
+                  </div>
+                </div>
+
+                {/* Email manzil */}
+                <div>
+                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                    Email manzil
+                  </label>
+                  <div className="relative">
+                    <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                    <input
+                      type="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="name@example.com"
+                      autoComplete="email"
+                      className="w-full bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition-all"
+                    />
+                  </div>
+                </div>
+
+                {/* Telefon raqam */}
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                    Telefon raqam <span className="text-slate-400">(ixtiyoriy)</span>
+                  </label>
+                  <div className="relative">
+                    <Phone className="w-4 h-4 text-indigo-500 absolute left-3.5 top-3" />
+                    <input
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => handlePhoneChange(e.target.value)}
+                      onKeyDown={(e) => {
+                        const target = e.target as HTMLInputElement;
+                        const selStart = target.selectionStart ?? 0;
+                        const selEnd = target.selectionEnd ?? 0;
+                        if (
+                          (e.key === 'Backspace' || e.key === 'Delete') &&
+                          selStart <= 5 &&
+                          selEnd <= 5
+                        ) {
+                          e.preventDefault();
+                        }
+                      }}
+                      placeholder="+998 90 123 45 67"
+                      className="w-full bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition-all tracking-wide"
+                    />
+                  </div>
+                </div>
+
+                {/* Parol */}
+                <div>
+                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">Parol</label>
+                  <div className="relative">
+                    <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Kamida 8 ta belgi"
+                      autoComplete="new-password"
+                      minLength={8}
+                      className="w-full bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 rounded-xl pl-10 pr-10 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition-all"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(v => !v)}
+                      className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-700 dark:hover:text-white transition-colors"
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Parolni tasdiqlash */}
+                <div>
+                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                    Parolni tasdiqlang
+                  </label>
+                  <div className="relative">
+                    <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Parolni qaytaring"
+                      autoComplete="new-password"
+                      className={`w-full bg-slate-50 dark:bg-slate-950/70 border rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 transition-all ${
+                        confirmPassword && confirmPassword !== password
+                          ? 'border-rose-400 focus:ring-rose-500/40'
+                          : 'border-slate-200 dark:border-slate-800 focus:ring-indigo-500/40 focus:border-indigo-500'
+                      }`}
+                    />
+                  </div>
+                  {confirmPassword && confirmPassword !== password && (
+                    <p className="text-[10px] text-rose-500 mt-1">Parollar mos kelmaydi</p>
+                  )}
+                </div>
               </div>
             </div>
           )}
 
-          {/* Ism (faqat register) */}
-          {mode === 'register' && (
-            <div>
-              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                Ism va Familiya
-              </label>
-              <div className="relative">
-                <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
-                <input
-                  type="text"
-                  required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Abdullayev Jasur"
-                  className="w-full bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition-all"
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Username (faqat login) */}
+          {/* LOGIN MODE FIELDS */}
           {mode === 'login' && (
-            <div>
-              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                Username
-              </label>
-              <div className="relative">
-                <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
-                <input
-                  type="text"
-                  required
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Username kiriting (masalan: jasur_99)"
-                  autoComplete="username"
-                  className="w-full bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition-all"
-                />
+            <>
+              <div>
+                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Username
+                </label>
+                <div className="relative">
+                  <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                  <input
+                    type="text"
+                    required
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="Username kiriting (masalan: jasur_99)"
+                    autoComplete="username"
+                    className="w-full bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition-all"
+                  />
+                </div>
               </div>
-            </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300">Parol</label>
+                  <button
+                    type="button"
+                    onClick={() => { setMode('forgot'); clearError(); setLocalError(null); }}
+                    className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline font-medium"
+                  >
+                    Parolni unutdingizmi?
+                  </button>
+                </div>
+                <div className="relative">
+                  <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    autoComplete="current-password"
+                    className="w-full bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 rounded-xl pl-10 pr-10 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition-all"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(v => !v)}
+                    className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-700 dark:hover:text-white transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+            </>
           )}
 
-          {/* Email (register va forgot) */}
-          {(mode === 'register' || mode === 'forgot') && (
+          {/* FORGOT MODE FIELDS */}
+          {mode === 'forgot' && (
             <div>
               <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
                 Email manzil
@@ -330,90 +500,6 @@ export const AuthModal: React.FC = () => {
                   className="w-full bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition-all"
                 />
               </div>
-            </div>
-          )}
-
-          {/* Telefon (faqat register) */}
-          {mode === 'register' && (
-            <div>
-              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                Telefon raqam <span className="text-slate-400">(ixtiyoriy)</span>
-              </label>
-              <div className="relative">
-                <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
-                <input
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="+998 90 123 45 67"
-                  className="w-full bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition-all"
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Parol (login va register) */}
-          {(mode === 'login' || mode === 'register') && (
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300">Parol</label>
-                {mode === 'login' && (
-                  <button
-                    type="button"
-                    onClick={() => { setMode('forgot'); clearError(); setLocalError(null); }}
-                    className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline font-medium"
-                  >
-                    Parolni unutdingizmi?
-                  </button>
-                )}
-              </div>
-              <div className="relative">
-                <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder={mode === 'register' ? 'Kamida 8 ta belgi' : '••••••••'}
-                  autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-                  minLength={mode === 'register' ? 8 : undefined}
-                  className="w-full bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 rounded-xl pl-10 pr-10 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition-all"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(v => !v)}
-                  className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-700 dark:hover:text-white transition-colors"
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Parolni tasdiqlash (faqat register) */}
-          {mode === 'register' && (
-            <div>
-              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                Parolni tasdiqlang
-              </label>
-              <div className="relative">
-                <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Parolni qaytaring"
-                  autoComplete="new-password"
-                  className={`w-full bg-slate-50 dark:bg-slate-950/70 border rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 transition-all ${
-                    confirmPassword && confirmPassword !== password
-                      ? 'border-rose-400 focus:ring-rose-500/40'
-                      : 'border-slate-200 dark:border-slate-800 focus:ring-indigo-500/40 focus:border-indigo-500'
-                  }`}
-                />
-              </div>
-              {confirmPassword && confirmPassword !== password && (
-                <p className="text-[10px] text-rose-500 mt-1">Parollar mos kelmaydi</p>
-              )}
             </div>
           )}
 

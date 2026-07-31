@@ -8,7 +8,6 @@ import {
   CheckCircle, 
   Phone, 
   MapPin, 
-  Clock, 
   Globe, 
   Send, 
   TrendingUp, 
@@ -29,8 +28,10 @@ import { Modal } from '../../../components/common/Modal';
 import { DashboardSidebar } from '../common/DashboardSidebar';
 import { DashboardSettings } from '../DashboardSettings';
 import { getCenterOwnerTabs, type CenterOwnerTabType } from './centerOwnerTabs';
+import { useToast } from '../../../context/ToastContext';
 
 export const CenterOwnerDashboard: React.FC = () => {
+  const { toast, confirm } = useToast();
   const [ownerTab, setOwnerTab] = useState<CenterOwnerTabType>('profile_edit');
   const { profile, teachers, revenue, updateProfile, addTeacher, removeTeacher } = useCenterOwner();
 
@@ -85,9 +86,10 @@ export const CenterOwnerDashboard: React.FC = () => {
     try {
       setIsSubmitting(true);
       await updateProfile(centerData);
-      alert('O‘quv markazingiz ma’lumotlari muvaffaqiyatli yangilandi!');
+      toast.success('O‘quv markazingiz ma’lumotlari muvaffaqiyatli yangilandi!', 'Profil Yangilandi');
     } catch (err) {
       console.error(err);
+      toast.error('Markaz ma’lumotlarini saqlashda xatolik yuz berdi!');
     } finally {
       setIsSubmitting(false);
     }
@@ -104,19 +106,28 @@ export const CenterOwnerDashboard: React.FC = () => {
         subject: teacherSubject,
         phone: teacherPhone
       });
+      toast.success('Yangi o‘qituvchi muvaffaqiyatli qo‘shildi!');
       resetTeacherForm();
       setIsTeacherModalOpen(false);
     } catch (err) {
       console.error(err);
+      toast.error('O‘qituvchi qo‘shishda xatolik yuz berdi!');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleRemoveTeacher = async (id: string) => {
-    if (window.confirm('Haqiqatan ham ushbu o‘qituvchini markazdan o‘chirmoqchimisiz?')) {
-      await removeTeacher(id);
-    }
+    confirm({
+      title: 'O‘qituvchini o‘chirish',
+      message: 'Haqiqatan ham ushbu o‘qituvchini markazdan o‘chirmoqchimisiz?',
+      type: 'danger',
+      confirmText: 'O‘chirish',
+      onConfirm: async () => {
+        await removeTeacher(id);
+        toast.success('O‘qituvchi markazdan o‘chirildi!');
+      }
+    });
   };
 
   const ownerTabs = getCenterOwnerTabs(teachers?.length || 0);

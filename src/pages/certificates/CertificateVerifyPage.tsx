@@ -3,8 +3,10 @@ import { useParams } from 'react-router-dom';
 import { ShieldCheck, Download, CheckCircle2, Search, Loader2, AlertCircle } from 'lucide-react';
 import { examsApi } from '../../services/examsApi';
 import type { CertificateItem } from '../../types';
+import { useToast } from '../../context/ToastContext';
 
 export const CertificateVerifyPage: React.FC = () => {
+  const { toast } = useToast();
   const { id } = useParams<{ id: string }>();
   const [searchId, setSearchId] = useState(id || 'EDUQ-2024-88912');
   const [cert, setCert] = useState<CertificateItem | null>(null);
@@ -128,7 +130,7 @@ export const CertificateVerifyPage: React.FC = () => {
 
           <div className="flex justify-center pt-2">
             <button
-              onClick={() => alert('Sertifikat PDF formati kompyuteringizga yuklab olindi!')}
+              onClick={() => toast.success('Sertifikat PDF formati kompyuteringizga yuklab olindi!', 'PDF Yuklab Olindi')}
               className="py-3.5 px-8 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-lg shadow-indigo-600/30 active:scale-95 transition-all flex items-center gap-2"
             >
               <Download className="w-4 h-4" /> Rasmiy Sertifikatni PDF Shaklida Yuklab Olish

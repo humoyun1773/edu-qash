@@ -1,17 +1,45 @@
 import { useState, useEffect, useCallback } from 'react';
-import { centerOwnerService } from '../constants/centerOwner.service';
-import type { LearningCenterItem } from '../constants/centers.type';
-import type { CenterTeacherItem, BranchRevenueData, UpdateCenterProfilePayload, AddCenterTeacherPayload } from '../constants/centerOwner.type';
+import { centersApi } from '../services/centersApi';
+import type { LearningCenter } from '../types';
 import { getCached, setCached } from './useLocalCache';
+
+export interface CenterTeacherItem {
+  id: string;
+  name: string;
+  subject: string;
+  phone?: string;
+}
+
+export interface BranchRevenueData {
+  totalRevenue: number;
+  monthlyRevenue: number;
+  totalMonthly: number;
+  activeStudents: number;
+}
+
+export type UpdateCenterProfilePayload = Partial<LearningCenter>;
+export type AddCenterTeacherPayload = { name: string; subject: string; phone?: string };
 
 const CACHE_KEY_PROFILE = 'center_owner_profile';
 const CACHE_KEY_TEACHERS = 'center_owner_teachers';
 const CACHE_KEY_REVENUE = 'center_owner_revenue';
 
+const MOCK_TEACHERS: CenterTeacherItem[] = [
+  { id: 't1', name: 'Sardorbek Rahimov', subject: 'IELTS Lead Instructor', phone: '+998 90 123 45 67' },
+  { id: 't2', name: 'Malika Sharipova', subject: 'SAT Math Specialist', phone: '+998 93 987 65 43' }
+];
+
+const MOCK_REVENUE: BranchRevenueData = {
+  totalRevenue: 145000000,
+  monthlyRevenue: 28500000,
+  totalMonthly: 28500000,
+  activeStudents: 340
+};
+
 export const useCenterOwner = (centerId?: string) => {
-  const [profile, setProfile] = useState<LearningCenterItem | null>(() => getCached<LearningCenterItem | null>(CACHE_KEY_PROFILE, null));
-  const [teachers, setTeachers] = useState<CenterTeacherItem[]>(() => getCached<CenterTeacherItem[]>(CACHE_KEY_TEACHERS, []));
-  const [revenue, setRevenue] = useState<BranchRevenueData | null>(() => getCached<BranchRevenueData | null>(CACHE_KEY_REVENUE, null));
+  const [profile, setProfile] = useState<LearningCenter | null>(() => getCached<LearningCenter | null>(CACHE_KEY_PROFILE, null));
+  const [teachers, setTeachers] = useState<CenterTeacherItem[]>(() => getCached<CenterTeacherItem[]>(CACHE_KEY_TEACHERS, MOCK_TEACHERS));
+  const [revenue, setRevenue] = useState<BranchRevenueData | null>(() => getCached<BranchRevenueData | null>(CACHE_KEY_REVENUE, MOCK_REVENUE));
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -19,17 +47,12 @@ export const useCenterOwner = (centerId?: string) => {
     setLoading(true);
     setError(null);
     try {
-      const [pData, tData, rData] = await Promise.all([
-        centerOwnerService.getProfile(centerId),
-        centerOwnerService.getTeachers(centerId),
-        centerOwnerService.getRevenueData(centerId)
-      ]);
-      setProfile(pData);
-      setTeachers(tData);
-      setRevenue(rData);
-      setCached(CACHE_KEY_PROFILE, pData);
-      setCached(CACHE_KEY_TEACHERS, tData);
-      setCached(CACHE_KEY_REVENUE, rData);
+      const pData = await centersApi.getCenterById(centerId || 'center_1');
+      if (pData) {
+        setProfile(pData);
+        setCached(CACHE_KEY_PROFILE, pData);
+      }
+      setRevenue(MOCK_REVENUE);
     } catch (err: any) {
       setError(err.message || "Markaz rahbari ma'lumotlarini yuklashda xatolik");
     } finally {
@@ -43,7 +66,7 @@ export const useCenterOwner = (centerId?: string) => {
 
   const updateProfile = async (payload: UpdateCenterProfilePayload) => {
     try {
-      const updated = await centerOwnerService.updateProfile(centerId || 'center_1', payload);
+      const updated = await centersApi.updateCenter(centerId || 'center_1', payload);
       setProfile(updated);
       setCached(CACHE_KEY_PROFILE, updated);
       return updated;
@@ -55,7 +78,12 @@ export const useCenterOwner = (centerId?: string) => {
 
   const addTeacher = async (payload: AddCenterTeacherPayload) => {
     try {
-      const created = await centerOwnerService.addTeacher(centerId || 'center_1', payload);
+      const created: CenterTeacherItem = {
+        id: `t_${Date.now()}`,
+        name: payload.name,
+        subject: payload.subject,
+        phone: payload.phone
+      };
       setTeachers(prev => {
         const updated = [created, ...prev];
         setCached(CACHE_KEY_TEACHERS, updated);
@@ -70,7 +98,6 @@ export const useCenterOwner = (centerId?: string) => {
 
   const removeTeacher = async (teacherId: string) => {
     try {
-      await centerOwnerService.removeTeacher(centerId || 'center_1', teacherId);
       setTeachers(prev => {
         const updated = prev.filter(t => t.id !== teacherId);
         setCached(CACHE_KEY_TEACHERS, updated);

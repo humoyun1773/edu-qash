@@ -52,6 +52,7 @@ interface AuthContextType {
   register: (name: string, email: string, password: string, role: UserRole) => Promise<{ message: string }>;
   logout: () => void;
   clearError: () => void;
+  updateUser: (updatedFields: Partial<User>) => void;
 
   // Modal metodlar
   switchRole: (newRole: UserRole) => void;
@@ -192,6 +193,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return false;
   };
 
+  // Foydalanuvchi ma'lumotlarini lokal yangilash
+  const updateUser = (updatedFields: Partial<User>) => {
+    setUser(prev => {
+      const updated = { ...prev, ...updatedFields };
+      if (isAuthenticated) saveSession(updated, updated.role);
+      return updated;
+    });
+  };
+
   const openAuthModal = (mode: 'login' | 'register' | 'forgot' | 'sms' = 'login') => {
     setAuthModalMode(mode);
     setIsAuthModalOpen(true);
@@ -215,6 +225,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         register,
         logout,
         clearError,
+        updateUser,
         switchRole,
         login,
         verifySMS,

@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { examsApi } from '../../services/examsApi';
 import type { EssayCheckResult, CambridgeBook } from '../../types';
+import { useToast } from '../../context/ToastContext';
 
 type TabType = 'overview' | 'writing_ai' | 'calculator' | 'cambridge';
 
@@ -53,6 +54,7 @@ const calculateOverallBand = (l: number, r: number, w: number, s: number): strin
 };
 
 export const IELTSPage: React.FC = () => {
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<TabType>('overview');
   
   // IELTS Band Calculator state
@@ -465,7 +467,7 @@ export const IELTSPage: React.FC = () => {
                 </div>
                 <button
                   type="button"
-                  onClick={() => alert(`${book.title} PDF va Audiolari kompyuteringizga yuklanmoqda...`)}
+                  onClick={() => toast.info(`${book.title} PDF va Audiolari kompyuteringizga yuklanmoqda...`, 'Fayl Yuklash')}
                   className="w-full btn-secondary py-2 text-xs justify-center font-bold flex items-center gap-2"
                 >
                   <Download className="w-4 h-4 text-indigo-500 dark:text-indigo-400" /> PDF & Audio Yuklab Olish

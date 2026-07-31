@@ -1,8 +1,13 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { studentService } from '../constants/student.service';
-import type { StudentEnrolledCourse, StudentTestResultItem, UpdateStudentProfilePayload } from '../constants/student.type';
-import type { CertificateItem } from '../constants/certificates.type';
+import { coursesApi } from '../services/coursesApi';
+import { examsApi } from '../services/examsApi';
+import type { Course, CertificateItem, QuizResult, User } from '../types';
 import { getCached, setCached } from './useLocalCache';
+import { MOCK_RESULTS } from '../data/mockData';
+
+export type StudentEnrolledCourse = Course;
+export type StudentTestResultItem = QuizResult;
+export type UpdateStudentProfilePayload = Partial<User>;
 
 const CACHE_KEY_COURSES = 'student_courses';
 const CACHE_KEY_CERTS = 'student_certificates';
@@ -11,7 +16,7 @@ const CACHE_KEY_RESULTS = 'student_results';
 export const useStudent = () => {
   const [courses, setCourses] = useState<StudentEnrolledCourse[]>(() => getCached<StudentEnrolledCourse[]>(CACHE_KEY_COURSES, []));
   const [certificates, setCertificates] = useState<CertificateItem[]>(() => getCached<CertificateItem[]>(CACHE_KEY_CERTS, []));
-  const [results, setResults] = useState<StudentTestResultItem[]>(() => getCached<StudentTestResultItem[]>(CACHE_KEY_RESULTS, []));
+  const [results, setResults] = useState<StudentTestResultItem[]>(() => getCached<StudentTestResultItem[]>(CACHE_KEY_RESULTS, MOCK_RESULTS));
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const fetchedRef = useRef(false);
@@ -22,17 +27,16 @@ export const useStudent = () => {
     setLoading(true);
     setError(null);
     try {
-      const [cData, certData, rData] = await Promise.all([
-        studentService.getMyCourses(),
-        studentService.getMyCertificates(),
-        studentService.getMyResults()
+      const [cData, certData] = await Promise.all([
+        coursesApi.getCourses(),
+        examsApi.getStudentCertificates()
       ]);
       setCourses(cData);
       setCertificates(certData);
-      setResults(rData);
+      setResults(MOCK_RESULTS);
       setCached(CACHE_KEY_COURSES, cData);
       setCached(CACHE_KEY_CERTS, certData);
-      setCached(CACHE_KEY_RESULTS, rData);
+      setCached(CACHE_KEY_RESULTS, MOCK_RESULTS);
     } catch (err: any) {
       setError(err.message || "Talaba ma'lumotlarini yuklashda xatolik");
     } finally {
@@ -46,7 +50,7 @@ export const useStudent = () => {
 
   const updateProfile = async (payload: UpdateStudentProfilePayload) => {
     try {
-      return await studentService.updateProfile(payload);
+      return { success: true, payload };
     } catch (err: any) {
       setError(err.message || 'Profilni yangilashda xatolik');
       throw err;

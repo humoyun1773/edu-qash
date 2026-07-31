@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { User, Lock, Bell, Moon, Sun, Shield, Save, CheckCircle2, Loader2 } from 'lucide-react';
+import { User, Lock, Bell, Moon, Sun, Shield, Save, CheckCircle2, Loader2, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
+import { authApi } from '../../services/authApi';
 
 type SubTabType = 'profile' | 'security' | 'notifications' | 'preferences';
 
@@ -19,7 +20,7 @@ const SUB_TABS: SubTabConfig[] = [
 ];
 
 export const DashboardSettings: React.FC = () => {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const { theme, toggleTheme } = useTheme();
 
   const [activeSubTab, setActiveSubTab] = useState<SubTabType>('profile');
@@ -28,6 +29,7 @@ export const DashboardSettings: React.FC = () => {
 
   // Profile Form States
   const [name, setName] = useState(user?.name || '');
+  const [username, setUsername] = useState(user?.username || '');
   const [email, setEmail] = useState(user?.email || '');
   const [phone, setPhone] = useState(user?.phone || '+998 90 123 45 67');
 
@@ -40,11 +42,13 @@ export const DashboardSettings: React.FC = () => {
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [telegramNotifications, setTelegramNotifications] = useState(true);
   const [smsNotifications, setSmsNotifications] = useState(true);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   // Sync state if user context updates asynchronously
   useEffect(() => {
     if (user) {
       setName(user.name || '');
+      setUsername(user.username || '');
       setEmail(user.email || '');
       if (user.phone) setPhone(user.phone);
     }
@@ -53,18 +57,23 @@ export const DashboardSettings: React.FC = () => {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setSaveError(null);
 
     try {
-      // Simulate API call delay
-      await new Promise((resolve) => setTimeout(resolve, 600));
+      if (activeSubTab === 'profile') {
+        // API ga profil ma'lumotlarini yuborish
+        const updatedUser = await authApi.updateProfile({ name, username, email, phone });
+        // Context va localStorage ni yangilash
+        updateUser(updatedUser);
+      }
 
       setSavedSuccess(true);
       setOldPassword('');
       setNewPassword('');
-
       setTimeout(() => setSavedSuccess(false), 3000);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Sozlamalarni saqlashda xatolik:', error);
+      setSaveError(error?.message || "Ma'lumotlarni saqlashda xatolik yuz berdi.");
     } finally {
       setIsSubmitting(false);
     }
@@ -91,6 +100,11 @@ export const DashboardSettings: React.FC = () => {
         {savedSuccess && (
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-600 dark:text-emerald-300 text-xs font-bold animate-pulse">
             <CheckCircle2 className="w-4 h-4" /> Sozlamalar Saqlandi!
+          </div>
+        )}
+        {saveError && (
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-rose-500/20 border border-rose-500/40 text-rose-600 dark:text-rose-400 text-xs font-bold">
+            <AlertCircle className="w-4 h-4" /> {saveError}
           </div>
         )}
       </div>
@@ -151,6 +165,21 @@ export const DashboardSettings: React.FC = () => {
                   onChange={(e) => setName(e.target.value)}
                   className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700/80 rounded-xl p-3 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500"
                 />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1">
+                  <span className="text-indigo-500">@</span> Username
+                </label>
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value.replace(/[^a-zA-Z0-9_.]/g, ''))}
+                  placeholder="masalan: jasur_99"
+                  autoComplete="username"
+                  className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700/80 rounded-xl p-3 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 font-mono tracking-wide"
+                />
+                <p className="text-[10px] text-slate-400 mt-1">Faqat lotin harflari, raqamlar, _ va .</p>
               </div>
 
               <div>

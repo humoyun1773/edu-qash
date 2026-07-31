@@ -22,6 +22,7 @@ export interface UserStats {
 export interface User {
   id: string;
   name: string;
+  username?: string;
   email: string;
   phone: string;
   role: UserRole;
@@ -83,6 +84,7 @@ export interface Course {
   modules: CourseModule[];
   hasCertificate: boolean;
   createdAt: string;
+  progressPercentage?: number;
 }
 
 export interface MapCoordinates {
@@ -146,6 +148,11 @@ export interface QuizResult {
   timeSpentSeconds: number;
   passed: boolean;
   date: string;
+  testTitle?: string;
+  listeningBand?: number;
+  readingBand?: number;
+  writingBand?: number;
+  overallBand?: number;
 }
 
 export interface CambridgeBook {
