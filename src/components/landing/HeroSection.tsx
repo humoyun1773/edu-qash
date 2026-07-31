@@ -1,14 +1,20 @@
-import React from 'react';
-import { Search, Sparkles, ArrowRight, ShieldCheck, Award, Zap } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
+import React, { useRef } from 'react';
+import { Search, ArrowRight, ShieldCheck, Award, Zap, Sparkles } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface HeroSectionProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
+  onSearch: () => void;
 }
 
-export const HeroSection: React.FC<HeroSectionProps> = ({ searchQuery, setSearchQuery }) => {
-  const { openAuthModal } = useAuth();
+export const HeroSection: React.FC<HeroSectionProps> = ({ searchQuery, setSearchQuery, onSearch }) => {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSearch();
+  };
 
   return (
     <section className="relative pt-12 lg:pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-[1536px] w-full mx-auto overflow-hidden">
@@ -20,11 +26,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ searchQuery, setSearch
       <div className="relative z-10 text-center space-y-8 max-w-4xl mx-auto">
         {/* Main Title */}
         <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight leading-[1.08] text-slate-900 dark:text-white font-display animate-fade-up">
-          Bilim Oling, O‘quv Markazlarni Toping va{' '}
+          Bilim Oling, O'quv Markazlarni Toping va{' '}
           <span className="bg-gradient-to-r from-sky-400 via-indigo-500 to-purple-500 dark:from-sky-300 dark:via-sky-200 dark:to-indigo-300 bg-clip-text text-transparent font-black drop-shadow-sm">
             Xalqaro Sertifikatlarga
           </span>{' '}
-          Ega Bo‘ling
+          Ega Bo'ling
         </h1>
 
         {/* Description */}
@@ -35,17 +41,19 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ searchQuery, setSearch
         {/* Global Search Bar */}
         <div className="max-w-2xl mx-auto pt-2 animate-fade-up-delayed-2">
           <form
-            onSubmit={(e) => { e.preventDefault(); openAuthModal('register'); }}
+            onSubmit={handleSubmit}
             className="p-2.5 flex flex-col sm:flex-row items-center gap-2.5 bg-white/90 dark:bg-slate-900/80 backdrop-blur-2xl border border-slate-200/90 dark:border-slate-800 rounded-3xl shadow-2xl focus-within:border-indigo-500/60 focus-within:ring-4 focus-within:ring-indigo-500/10 transition-all hover:border-indigo-500/40"
           >
             <div className="relative w-full flex items-center">
               <Search className="w-5 h-5 text-indigo-500 dark:text-indigo-400 absolute left-4 pointer-events-none" />
               <input
+                ref={inputRef}
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Kurslar, O'quv markazlar, Ustozlar..."
                 className="w-full bg-transparent pl-12 pr-4 py-3 text-sm font-semibold text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none"
+                autoComplete="off"
               />
             </div>
             <button
@@ -65,7 +73,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ searchQuery, setSearch
               <Zap className="w-5 h-5" />
             </div>
             <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white font-display">40+</div>
-            <div className="text-xs text-slate-500 dark:text-slate-400 font-bold mt-1">Nufuzli O‘quv Markazlar</div>
+            <div className="text-xs text-slate-500 dark:text-slate-400 font-bold mt-1">Nufuzli O'quv Markazlar</div>
           </div>
 
           <div className="card-glowing-light card-shimmer p-5 rounded-3xl bg-white/70 dark:bg-slate-900/50 backdrop-blur-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-xl hover:border-purple-500/40 hover:scale-105 hover:-translate-y-2 transition-all duration-300 text-center group cursor-pointer">
@@ -81,7 +89,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ searchQuery, setSearch
               <Sparkles className="w-5 h-5" />
             </div>
             <div className="text-2xl sm:text-3xl font-black text-amber-500 dark:text-amber-400 font-display">8.0+</div>
-            <div className="text-xs text-slate-500 dark:text-slate-400 font-bold mt-1">O‘rtacha IELTS Natija</div>
+            <div className="text-xs text-slate-500 dark:text-slate-400 font-bold mt-1">O'rtacha IELTS Natija</div>
           </div>
 
           <div className="card-glowing-light card-shimmer p-5 rounded-3xl bg-white/70 dark:bg-slate-900/50 backdrop-blur-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-xl hover:border-emerald-500/40 hover:scale-105 hover:-translate-y-2 transition-all duration-300 text-center group cursor-pointer">
