@@ -1,6 +1,5 @@
 import React, { useRef } from 'react';
 import { Search, ArrowRight, ShieldCheck, Award, Zap, Sparkles } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 
 interface HeroSectionProps {
   searchQuery: string;
