@@ -25,7 +25,7 @@ const pendingRequests = new Map<string, Promise<any>>();
 const apiCache = new Map<string, { timestamp: number; data: any }>();
 
 export async function request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
-  const { data, headers, ttl = 30000, ...customOptions } = options;
+  const { data, headers, ttl = 60000, ...customOptions } = options;
   const token = getAuthToken();
 
   const method = customOptions.method || (data ? 'POST' : 'GET');
@@ -49,9 +49,14 @@ export async function request<T>(endpoint: string, options: RequestOptions = {})
   const cleanEndpoint = endpoint.replace(/^\//, '');
   const url = cleanBase ? `${cleanBase}/${cleanEndpoint}` : `/${cleanEndpoint}`;
 
-  // Clear cache on mutations (POST, PUT, DELETE)
+  // Invalidate matching GET cache on mutations
   if (method !== 'GET') {
-    apiCache.clear();
+    const pathBase = url.split('?')[0];
+    for (const key of apiCache.keys()) {
+      if (key.startsWith(pathBase)) {
+        apiCache.delete(key);
+      }
+    }
   }
 
   // Check in-memory cache for GET requests

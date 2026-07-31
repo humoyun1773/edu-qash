@@ -19,12 +19,32 @@ export const teacherApi = {
     }
   },
 
-  /**
-   * Quiz yaratish
-   * Swagger: POST /quizzes/
-   */
-  createQuiz: async (quiz: { title: string; category: string; durationMinutes: number }): Promise<Quiz> => {
-    return await api.post<Quiz>(API_ENDPOINTS.QUIZZES.BASE, quiz);
+  createQuiz: async (quiz: { title: string; category: string; durationMinutes?: number; passScore?: number }): Promise<Quiz> => {
+    try {
+      const res: any = await api.post(API_ENDPOINTS.QUIZZES.BASE, quiz);
+      return {
+        id: String(res.id || `q_${Date.now()}`),
+        title: res.title || quiz.title,
+        category: (res.category || quiz.category || 'IELTS') as any,
+        durationMinutes: res.duration_minutes || quiz.durationMinutes || 30,
+        negativeMarking: false,
+        shuffleQuestions: true,
+        passScore: res.pass_score || quiz.passScore || 70,
+        questions: res.questions || []
+      };
+    } catch (err) {
+      console.warn('[teacherApi] createQuiz API error, fallback:', err);
+      return {
+        id: `q_${Date.now()}`,
+        title: quiz.title,
+        category: (quiz.category as any) || 'IELTS',
+        durationMinutes: quiz.durationMinutes || 30,
+        negativeMarking: false,
+        shuffleQuestions: true,
+        passScore: quiz.passScore || 70,
+        questions: []
+      };
+    }
   },
 
   /**

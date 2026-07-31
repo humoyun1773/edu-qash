@@ -24,21 +24,22 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
   return (
     <Link
       to="/"
-      className={`inline-flex flex-col group shrink-0 select-none ${className}`}
+      className={`inline-flex items-center gap-2.5 sm:gap-3 group shrink-0 select-none ${className}`}
       title="Eduqash - Ta'lim va Rivojlanish Platformasi"
     >
-      <div className="flex items-center gap-2.5 sm:gap-3">
-        {/* Gemini Logo Emblem (Always visible on mobile & desktop) */}
-        <div className="relative shrink-0 flex items-center justify-center p-1 sm:p-1.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-sm group-hover:border-indigo-500/50 group-hover:shadow-md transition-all duration-300">
-          <img
-            src={geminiLogo}
-            alt="Eduqash Emblem"
-            className={`${logoHeight} w-auto object-contain rounded-xl mix-blend-multiply dark:mix-blend-normal dark:contrast-125 dark:brightness-110 transition-transform duration-300 group-hover:scale-105`}
-          />
-        </div>
+      {/* Gemini Logo Emblem (Always visible on mobile & desktop) */}
+      <div className="relative shrink-0 flex items-center justify-center p-1 sm:p-1.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-sm group-hover:border-indigo-500/50 group-hover:shadow-md transition-all duration-300">
+        <img
+          src={geminiLogo}
+          alt="Eduqash Emblem"
+          className={`${logoHeight} w-auto object-contain rounded-xl mix-blend-multiply dark:mix-blend-normal dark:contrast-125 dark:brightness-110 transition-transform duration-300 group-hover:scale-105`}
+        />
+      </div>
 
-        {/* Text Logo (Hidden on small mobile screens, visible on sm: 640px+ screens) */}
-        <div className="hidden sm:flex items-baseline font-black tracking-tight leading-none font-display">
+      {/* Brand Text + Subtitle Column */}
+      <div className="hidden sm:flex flex-col justify-center">
+        {/* Text Logo: eduqash */}
+        <div className="flex items-baseline font-black tracking-tight leading-none font-display">
           {/* 'edu' in glowing sky-blue gradient */}
           <span className={`bg-gradient-to-r from-sky-500 via-sky-400 to-indigo-500 dark:from-sky-400 dark:via-sky-300 dark:to-cyan-300 bg-clip-text text-transparent font-black ${textSize}`}>
             edu
@@ -49,16 +50,16 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
             qash
           </span>
         </div>
-      </div>
 
-      {/* Subtitle (Hidden on small mobile screens, visible on sm: 640px+ screens) */}
-      {showSubtitle && (
-        <span
-          className={`hidden sm:block font-extrabold text-slate-600 dark:text-slate-300 tracking-wider group-hover:text-indigo-600 dark:group-hover:text-sky-400 transition-colors mt-1 font-sans ${subTextSize}`}
-        >
-          Ta'lim va Rivojlanish Platformasi
-        </span>
-      )}
+        {/* Subtitle (Directly under eduqash text) */}
+        {showSubtitle && (
+          <span
+            className={`font-extrabold text-slate-700 dark:text-slate-200 tracking-normal group-hover:text-indigo-600 dark:group-hover:text-sky-400 transition-colors mt-0.5 font-sans leading-tight whitespace-nowrap ${subTextSize}`}
+          >
+            Ta'lim va Rivojlanish Platformasi
+          </span>
+        )}
+      </div>
     </Link>
   );
 };
