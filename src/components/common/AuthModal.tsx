@@ -137,7 +137,6 @@ export const AuthModal: React.FC = () => {
     setSuccessMessage(null);
 
     if (mode === 'login') {
-      // Real login: username + password
       const cleanUsername = username.trim();
       if (!cleanUsername || !password.trim()) {
         setLocalError("Username va parolni kiriting.");
@@ -145,15 +144,17 @@ export const AuthModal: React.FC = () => {
       }
       try {
         await loginWithPassword(cleanUsername, password.trim());
-        toast.success("Tizimga muvaffaqiyatli kirdingiz!");
+        // Muvaffaqiyatli kirish — modal yopilib, dashboardga yo'naltirish
         resetFormFields();
+        closeAuthModal();
+        toast.success("Tizimga muvaffaqiyatli kirdingiz!");
         navigate('/dashboard', { replace: true });
       } catch (err: any) {
-        toast.error(err?.message || "Kirishda xatolik yuz berdi");
+        // Xato faqat modal banner (authError) orqali ko'rsatiladi — toast kerak emas
+        // authError AuthContext da setAuthError orqali allaqachon o'rnatilgan
       }
 
     } else if (mode === 'register') {
-      // Validatsiya
       if (!name || !email || !password) {
         setLocalError("Barcha maydonlarni to'ldiring.");
         return;
@@ -168,13 +169,13 @@ export const AuthModal: React.FC = () => {
       }
       try {
         const res = await register(name, email, password, selectedRole);
-        const msg = res.message || "Ro'yxatdan muvaffaqiyatli o'tdingiz!";
+        const msg = res.message || "Ro'yxatdan muvaffaqiyatli o'tdingiz! Endi kirish mumkin.";
         setSuccessMessage(msg);
         toast.success(msg);
-        if (email) setUsername(email);
-        setMode('login'); // Muvaffaqiyatli ro'yxatdan so'ng login formiga o'tish
+        resetFormFields();
+        setMode('login');
       } catch (err: any) {
-        toast.error(err?.message || "Ro'yxatdan o'tishda xatolik yuz berdi");
+        // Xato faqat modal banner (authError) orqali ko'rsatiladi
       }
 
     } else if (mode === 'sms') {
@@ -189,7 +190,6 @@ export const AuthModal: React.FC = () => {
         }, 1000);
       } else {
         setLocalError("Noto'g'ri kod. Qayta kiriting.");
-        toast.error("Noto'g'ri SMS kod. Qayta kiriting.");
       }
 
     } else if (mode === 'forgot') {
@@ -206,6 +206,7 @@ export const AuthModal: React.FC = () => {
       }, 2500);
     }
   };
+
 
   return (
     <div
