@@ -81,12 +81,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // State o'zgarganda localStorage ga saqlash
   useEffect(() => {
-    if (isAuthenticated && role !== 'guest') {
+    if (isAuthenticated && role !== 'guest' && user?.id) {
       saveSession(user, role);
-    } else {
-      clearSession();
     }
   }, [user, role, isAuthenticated]);
+
+  // Page mount bo'lganda backend profilini va lokal sessiyani tiklash
+  useEffect(() => {
+    const token = localStorage.getItem('eduqash_token');
+    if (token) {
+      authApi.getProfile()
+        .then(profile => {
+          if (profile && profile.id) {
+            setUser(profile);
+            setRole(profile.role);
+            setIsAuthenticated(true);
+            saveSession(profile, profile.role);
+          }
+        })
+        .catch(err => {
+          console.warn('[AuthContext] Backend profile fetch warning (keeping stored session):', err?.message);
+        });
+    }
+  }, []);
 
   const clearError = () => setAuthError(null);
 

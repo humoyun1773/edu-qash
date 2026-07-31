@@ -101,19 +101,30 @@ export const AuthModal: React.FC = () => {
 
   const error = authError || localError;
 
-  // Modal ochilganda mode'ni yangilash
+  const resetFormFields = () => {
+    setName('');
+    setEmail('');
+    setUsername('');
+    setPassword('');
+    setConfirmPassword('');
+    setPhone('+998 ');
+    setOtpCode('');
+    setLocalError(null);
+    setSuccessMessage(null);
+  };
+
+  // Modal ochilganda va mode o'zgarganda inputlarni avtomatik tozalash
   useEffect(() => {
-    if (authModalMode) {
-      setMode(authModalMode);
-      setLocalError(null);
-      setSuccessMessage(null);
+    if (isAuthModalOpen) {
+      setMode(authModalMode || 'login');
+      resetFormFields();
+      clearError();
     }
-  }, [authModalMode, isAuthModalOpen]);
+  }, [isAuthModalOpen, authModalMode]);
 
   const handleModeSwitch = (newMode: 'login' | 'register') => {
     setMode(newMode);
-    setLocalError(null);
-    setSuccessMessage(null);
+    resetFormFields();
     clearError();
   };
 
@@ -135,6 +146,7 @@ export const AuthModal: React.FC = () => {
       try {
         await loginWithPassword(cleanUsername, password.trim());
         toast.success("Tizimga muvaffaqiyatli kirdingiz!");
+        resetFormFields();
         navigate('/dashboard', { replace: true });
       } catch (err: any) {
         toast.error(err?.message || "Kirishda xatolik yuz berdi");

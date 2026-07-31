@@ -1,12 +1,20 @@
 import { useState, useEffect, useCallback } from 'react';
 import { coursesApi } from '../services/coursesApi';
 import type { Course } from '../types';
+import { getCached, setCached } from './useLocalCache';
 
 export type CreateCoursePayload = Partial<Course>;
 export type UpdateCoursePayload = Partial<Course>;
 
+const CACHE_KEY_COURSES = 'eduqash_courses_list';
+const CACHE_KEY_DELETED_COURSES = 'eduqash_deleted_course_ids';
+
 export const useCourses = (category?: string) => {
-  const [courses, setCourses] = useState<Course[]>([]);
+  const [courses, setCourses] = useState<Course[]>(() => {
+    const cached = getCached<Course[]>(CACHE_KEY_COURSES, []);
+    const deletedIds = new Set(getCached<string[]>(CACHE_KEY_DELETED_COURSES, []));
+    return cached.filter(c => !deletedIds.has(c.id));
+  });
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -15,7 +23,20 @@ export const useCourses = (category?: string) => {
     setError(null);
     try {
       const data = await coursesApi.getCourses(category);
-      setCourses(data);
+      const cached = getCached<Course[]>(CACHE_KEY_COURSES, []);
+      const deletedIds = new Set(getCached<string[]>(CACHE_KEY_DELETED_COURSES, []));
+      const mergedMap = new Map<string, Course>();
+
+      cached.forEach(c => {
+        if (!deletedIds.has(c.id)) mergedMap.set(c.id, c);
+      });
+      data.forEach(c => {
+        if (!deletedIds.has(c.id)) mergedMap.set(c.id, c);
+      });
+
+      const mergedCourses = Array.from(mergedMap.values());
+      setCourses(mergedCourses);
+      setCached(CACHE_KEY_COURSES, mergedCourses);
     } catch (err: any) {
       setError(err.message || 'Kurslarni yuklashda xatolik yuz berdi');
     } finally {
@@ -30,7 +51,11 @@ export const useCourses = (category?: string) => {
   const createCourse = async (payload: CreateCoursePayload) => {
     try {
       const created = await coursesApi.createCourse(payload);
-      setCourses(prev => [created, ...prev]);
+      setCourses(prev => {
+        const updated = [created, ...prev];
+        setCached(CACHE_KEY_COURSES, updated);
+        return updated;
+      });
       return created;
     } catch (err: any) {
       setError(err.message || 'Kurs yaratishda xatolik');
@@ -52,7 +77,15 @@ export const useCourses = (category?: string) => {
   const deleteCourse = async (id: string) => {
     try {
       await coursesApi.deleteCourse(id);
-      setCourses(prev => prev.filter(c => c.id !== id));
+      const deletedIds = getCached<string[]>(CACHE_KEY_DELETED_COURSES, []);
+      if (!deletedIds.includes(id)) {
+        setCached(CACHE_KEY_DELETED_COURSES, [...deletedIds, id]);
+      }
+      setCourses(prev => {
+        const newList = prev.filter(c => c.id !== id);
+        setCached(CACHE_KEY_COURSES, newList);
+        return newList;
+      });
     } catch (err: any) {
       setError(err.message || "Kursni o'chirishda xatolik");
       throw err;

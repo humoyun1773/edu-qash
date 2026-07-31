@@ -7,11 +7,16 @@ export type CreateAdminUserPayload = { name: string; email: string; role: UserRo
 export type UpdateAdminUserPayload = Partial<AdminUser>;
 
 const CACHE_KEY_USERS = 'admin_users';
+const CACHE_KEY_DELETED_USERS = 'admin_deleted_user_ids';
 const CACHE_KEY_PAYMENTS = 'admin_payments';
 const CACHE_KEY_ANALYTICS = 'admin_analytics';
 
 export const useAdminUsers = () => {
-  const [users, setUsers] = useState<AdminUser[]>(() => getCached<AdminUser[]>(CACHE_KEY_USERS, []));
+  const [users, setUsers] = useState<AdminUser[]>(() => {
+    const cached = getCached<AdminUser[]>(CACHE_KEY_USERS, []);
+    const deletedIds = new Set(getCached<string[]>(CACHE_KEY_DELETED_USERS, []));
+    return cached.filter(u => !deletedIds.has(u.id));
+  });
   const [payments, setPayments] = useState<AdminPayment[]>(() => getCached<AdminPayment[]>(CACHE_KEY_PAYMENTS, []));
   const [analytics, setAnalytics] = useState<AdminAnalytics | null>(() => getCached<AdminAnalytics | null>(CACHE_KEY_ANALYTICS, null));
   const [loading, setLoading] = useState<boolean>(true);
@@ -26,10 +31,23 @@ export const useAdminUsers = () => {
         adminApi.getPayments(),
         adminApi.getAnalytics()
       ]);
-      setUsers(uData);
+
+      const cachedUsers = getCached<AdminUser[]>(CACHE_KEY_USERS, []);
+      const deletedIds = new Set(getCached<string[]>(CACHE_KEY_DELETED_USERS, []));
+      const mergedMap = new Map<string, AdminUser>();
+
+      cachedUsers.forEach(u => {
+        if (!deletedIds.has(u.id)) mergedMap.set(u.id, u);
+      });
+      uData.forEach(u => {
+        if (!deletedIds.has(u.id)) mergedMap.set(u.id, u);
+      });
+
+      const mergedUsers = Array.from(mergedMap.values());
+      setUsers(mergedUsers);
       setPayments(pData);
       setAnalytics(aData);
-      setCached(CACHE_KEY_USERS, uData);
+      setCached(CACHE_KEY_USERS, mergedUsers);
       setCached(CACHE_KEY_PAYMENTS, pData);
       setCached(CACHE_KEY_ANALYTICS, aData);
     } catch (err: any) {
@@ -76,6 +94,10 @@ export const useAdminUsers = () => {
   const deleteUser = async (id: string) => {
     try {
       await adminApi.deleteUser(id);
+      const deletedIds = getCached<string[]>(CACHE_KEY_DELETED_USERS, []);
+      if (!deletedIds.includes(id)) {
+        setCached(CACHE_KEY_DELETED_USERS, [...deletedIds, id]);
+      }
       setUsers(prev => {
         const newList = prev.filter(u => u.id !== id);
         setCached(CACHE_KEY_USERS, newList);

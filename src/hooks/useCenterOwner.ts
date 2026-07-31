@@ -86,6 +86,10 @@ export const useCenterOwner = (centerId?: string) => {
 
   const deleteTeacher = async (teacherId: string) => {
     try {
+      const deletedIds = getCached<string[]>('center_owner_deleted_teacher_ids', []);
+      if (!deletedIds.includes(teacherId)) {
+        setCached('center_owner_deleted_teacher_ids', [...deletedIds, teacherId]);
+      }
       setTeachers(prev => {
         const updated = prev.filter(t => t.id !== teacherId);
         setCached(CACHE_KEY_TEACHERS, updated);

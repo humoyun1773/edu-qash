@@ -78,16 +78,12 @@ export const useTeacher = () => {
 
   const createQuiz = async (payload: CreateTeacherQuizPayload) => {
     try {
-      const created: Quiz = {
-        id: `q_${Date.now()}`,
+      const created = await teacherApi.createQuiz({
         title: payload.title,
         category: payload.category,
         durationMinutes: payload.durationMinutes || 30,
-        negativeMarking: false,
-        shuffleQuestions: true,
-        passScore: payload.passScore ?? 70,
-        questions: []
-      };
+        passScore: payload.passScore ?? 70
+      });
       setQuizzes(prev => {
         const updated = [created, ...prev];
         setCached(CACHE_KEY_QUIZZES, updated);
