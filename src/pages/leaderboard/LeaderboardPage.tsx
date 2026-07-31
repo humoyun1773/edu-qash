@@ -1,17 +1,58 @@
 import React, { useState, useEffect } from 'react';
-import { Trophy, Star, Loader2, Medal } from 'lucide-react';
+import { Trophy, Star, Loader2, Medal, GraduationCap, BookOpen, Users, Building2 } from 'lucide-react';
 import { leaderboardApi } from '../../services/leaderboardApi';
 import type { LeaderboardStudent } from '../../services/leaderboardApi';
 import type { LearningCenter } from '../../types';
 
 type TabType = 'students' | 'teachers' | 'centers' | 'courses';
 
-const TABS: { id: TabType; label: string }[] = [
-  { id: 'students', label: 'Top Talabalar' },
-  { id: 'teachers', label: 'Top Ustozlar' },
-  { id: 'centers', label: 'Top Markazlar' },
-  { id: 'courses', label: 'Top Kurslar' },
+const TABS: { id: TabType; label: string; icon: React.ReactNode }[] = [
+  { id: 'students', label: 'Top Talabalar', icon: <GraduationCap className="w-4 h-4" /> },
+  { id: 'teachers', label: 'Top Ustozlar', icon: <Users className="w-4 h-4" /> },
+  { id: 'centers', label: 'Top Markazlar', icon: <Building2 className="w-4 h-4" /> },
+  { id: 'courses', label: 'Top Kurslar', icon: <BookOpen className="w-4 h-4" /> },
 ];
+
+// Medal component for top 3 ranks
+const RankMedal: React.FC<{ rank: number }> = ({ rank }) => {
+  if (rank === 1) {
+    return (
+      <div className="relative flex items-center justify-center w-10 h-10 shrink-0">
+        <div className="absolute inset-0 rounded-full bg-amber-500/20 animate-pulse" />
+        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-yellow-600 flex items-center justify-center shadow-lg shadow-amber-500/40 border-2 border-amber-300">
+          <Trophy className="w-5 h-5 text-white" />
+        </div>
+      </div>
+    );
+  }
+  if (rank === 2) {
+    return (
+      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-slate-300 to-slate-500 flex items-center justify-center shadow-md border-2 border-slate-200 shrink-0">
+        <Medal className="w-5 h-5 text-white" />
+      </div>
+    );
+  }
+  if (rank === 3) {
+    return (
+      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-700 to-amber-900 flex items-center justify-center shadow-md border-2 border-amber-600 shrink-0">
+        <Medal className="w-5 h-5 text-amber-100" />
+      </div>
+    );
+  }
+  return (
+    <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center shrink-0">
+      <span className="text-xs font-black text-slate-600 dark:text-slate-400">#{rank}</span>
+    </div>
+  );
+};
+
+// Row highlight for top 3
+const getRowStyle = (rank: number): string => {
+  if (rank === 1) return 'bg-gradient-to-r from-amber-50/70 to-yellow-50/40 dark:from-amber-900/20 dark:to-yellow-900/10 border-amber-300/60 dark:border-amber-700/40 shadow-amber-100/60 dark:shadow-none';
+  if (rank === 2) return 'bg-gradient-to-r from-slate-50/80 to-slate-100/40 dark:from-slate-800/60 dark:to-slate-900/40 border-slate-300/60 dark:border-slate-600/40';
+  if (rank === 3) return 'bg-gradient-to-r from-amber-50/40 to-orange-50/20 dark:from-amber-900/10 dark:to-orange-900/5 border-amber-200/40 dark:border-amber-800/30';
+  return 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800';
+};
 
 export const LeaderboardPage: React.FC = () => {
   const [tab, setTab] = useState<TabType>('students');
@@ -50,32 +91,19 @@ export const LeaderboardPage: React.FC = () => {
     };
   }, []);
 
-  const getRankBadgeStyle = (rank: number) => {
-    switch (rank) {
-      case 1:
-        return 'bg-amber-500 text-slate-950 font-black shadow-md shadow-amber-500/20';
-      case 2:
-        return 'bg-slate-300 dark:bg-slate-700 text-slate-900 dark:text-white font-bold';
-      case 3:
-        return 'bg-amber-700/80 text-white font-bold';
-      default:
-        return 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-semibold';
-    }
-  };
-
   return (
     <div className="max-w-[1536px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
       
-      {/* Header & Tab Selector */}
-      <div className="text-center space-y-4 max-w-4xl mx-auto">
+      {/* Header */}
+      <div className="text-center space-y-4 max-w-4xl mx-auto animate-fade-up">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-yellow-500/10 border border-yellow-500/30 text-amber-600 dark:text-yellow-400 text-xs font-bold uppercase tracking-wider">
           <Trophy className="w-4 h-4" /> Platforma Ommaviy Reytingi
         </div>
         <h1 className="text-3xl sm:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
-          Top Talabalar, Ustozlar va O‘quv Markazlar
+          Top Talabalar, Ustozlar va O'quv Markazlar
         </h1>
         <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed">
-          Haftalik hamda oylik eng yuqori natija ko‘rsatgan talabalar, eng ko‘p ijobiy baholangan ustozlar va eng nufuzli tayyorlov markazlari.
+          Haftalik hamda oylik eng yuqori natija ko'rsatgan talabalar, eng ko'p ijobiy baholangan ustozlar va eng nufuzli tayyorlov markazlari.
         </p>
 
         {/* Tab Switcher */}
@@ -84,12 +112,13 @@ export const LeaderboardPage: React.FC = () => {
             <button
               key={item.id}
               onClick={() => setTab(item.id)}
-              className={`px-4 py-2.5 rounded-xl text-xs font-bold uppercase transition-all ${
+              className={`px-4 py-2.5 rounded-xl text-xs font-bold uppercase transition-all flex items-center gap-1.5 ${
                 tab === item.id
                   ? 'bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/30 font-extrabold'
                   : 'bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800'
               }`}
             >
+              {item.icon}
               {item.label}
             </button>
           ))}
@@ -106,34 +135,37 @@ export const LeaderboardPage: React.FC = () => {
             </span>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {/* TOP STUDENTS TAB */}
             {tab === 'students' && (
               topStudents.length === 0 ? (
-                <p className="text-center py-12 text-slate-500 dark:text-slate-400 font-medium">
-                  Hozircha ma'lumot mavjud emas
-                </p>
+                <div className="text-center py-16 space-y-3">
+                  <GraduationCap className="w-12 h-12 mx-auto text-slate-300 dark:text-slate-600" />
+                  <p className="text-slate-500 dark:text-slate-400 font-medium">
+                    Hozircha ma'lumot mavjud emas
+                  </p>
+                </div>
               ) : (
                 topStudents.map((st) => (
-                  <div 
-                    key={st.rank} 
-                    className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between shadow-sm hover:border-amber-500/30 transition-all"
+                  <div
+                    key={st.rank}
+                    className={`p-4 rounded-2xl border flex items-center justify-between shadow-sm hover:shadow-md transition-all duration-200 ${getRowStyle(st.rank)}`}
                   >
                     <div className="flex items-center gap-4">
-                      <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs ${getRankBadgeStyle(st.rank)}`}>
-                        #{st.rank}
-                      </div>
-                      <img 
-                        src={st.avatar} 
-                        alt={`${st.name} rasmi`} 
-                        className="w-10 h-10 rounded-full object-cover border border-slate-300 dark:border-slate-700" 
+                      <RankMedal rank={st.rank} />
+                      <img
+                        src={st.avatar}
+                        alt={`${st.name} rasmi`}
+                        className="w-10 h-10 rounded-full object-cover border-2 border-white dark:border-slate-700 shadow-sm"
                       />
                       <div>
                         <h4 className="text-sm font-bold text-slate-900 dark:text-white">{st.name}</h4>
                         <span className="text-xs text-slate-500 dark:text-slate-400">{st.tests} ta test topshirgan</span>
                       </div>
                     </div>
-                    <span className="badge badge-amber font-bold">{st.score}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="badge badge-amber font-black">{st.score} ball</span>
+                    </div>
                   </div>
                 ))
               )
@@ -142,33 +174,34 @@ export const LeaderboardPage: React.FC = () => {
             {/* TOP CENTERS TAB */}
             {tab === 'centers' && (
               topCenters.length === 0 ? (
-                <p className="text-center py-12 text-slate-500 dark:text-slate-400 font-medium">
-                  Hozircha ma'lumot mavjud emas
-                </p>
+                <div className="text-center py-16 space-y-3">
+                  <Building2 className="w-12 h-12 mx-auto text-slate-300 dark:text-slate-600" />
+                  <p className="text-slate-500 dark:text-slate-400 font-medium">
+                    Hozircha ma'lumot mavjud emas
+                  </p>
+                </div>
               ) : (
                 topCenters.map((c, i) => {
                   const rank = i + 1;
                   return (
-                    <div 
-                      key={c.id} 
-                      className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between shadow-sm hover:border-amber-500/30 transition-all"
+                    <div
+                      key={c.id}
+                      className={`p-4 rounded-2xl border flex items-center justify-between shadow-sm hover:shadow-md transition-all duration-200 ${getRowStyle(rank)}`}
                     >
                       <div className="flex items-center gap-4">
-                        <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs ${getRankBadgeStyle(rank)}`}>
-                          #{rank}
-                        </div>
-                        <img 
-                          src={c.logo} 
-                          alt={`${c.name} logotipi`} 
-                          className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-700" 
+                        <RankMedal rank={rank} />
+                        <img
+                          src={c.logo}
+                          alt={`${c.name} logotipi`}
+                          className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-700 shadow-sm"
                         />
                         <div>
                           <h4 className="text-sm font-bold text-slate-900 dark:text-white">{c.name}</h4>
                           <span className="text-xs text-slate-500 dark:text-slate-400">{c.city}</span>
                         </div>
                       </div>
-                      <span className="text-xs text-amber-600 dark:text-yellow-400 font-bold flex items-center gap-1">
-                        <Star className="w-4 h-4 fill-amber-500 dark:fill-yellow-400" /> {c.rating} ({c.reviewsCount})
+                      <span className="badge badge-amber font-bold flex items-center gap-1">
+                        <Star className="w-3.5 h-3.5 fill-amber-500" /> {c.rating} ({c.reviewsCount})
                       </span>
                     </div>
                   );
@@ -176,19 +209,29 @@ export const LeaderboardPage: React.FC = () => {
               )
             )}
 
-            {/* TOP TEACHERS TAB (Placeholder state) */}
+            {/* TOP TEACHERS TAB (Coming soon) */}
             {tab === 'teachers' && (
-              <div className="text-center py-12 text-slate-500 dark:text-slate-400">
-                <Medal className="w-10 h-10 mx-auto mb-2 text-slate-400 opacity-60" />
-                <p className="font-semibold text-sm">Ustozlar reytingi shakllanmoqda</p>
+              <div className="text-center py-16 space-y-4">
+                <div className="w-16 h-16 mx-auto rounded-3xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center border border-indigo-500/20">
+                  <Users className="w-8 h-8" />
+                </div>
+                <div>
+                  <p className="font-bold text-sm text-slate-800 dark:text-slate-200">Ustozlar reytingi shakllanmoqda</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Tez orada mavjud bo'ladi</p>
+                </div>
               </div>
             )}
 
-            {/* TOP COURSES TAB (Placeholder state) */}
+            {/* TOP COURSES TAB (Coming soon) */}
             {tab === 'courses' && (
-              <div className="text-center py-12 text-slate-500 dark:text-slate-400">
-                <Trophy className="w-10 h-10 mx-auto mb-2 text-slate-400 opacity-60" />
-                <p className="font-semibold text-sm">Kurslar reytingi shakllanmoqda</p>
+              <div className="text-center py-16 space-y-4">
+                <div className="w-16 h-16 mx-auto rounded-3xl bg-amber-500/10 text-amber-500 flex items-center justify-center border border-amber-500/20">
+                  <BookOpen className="w-8 h-8" />
+                </div>
+                <div>
+                  <p className="font-bold text-sm text-slate-800 dark:text-slate-200">Kurslar reytingi shakllanmoqda</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Tez orada mavjud bo'ladi</p>
+                </div>
               </div>
             )}
           </div>
