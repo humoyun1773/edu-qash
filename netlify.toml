@@ -1,0 +1,120 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  # Production da VITE_API_BASE_URL bo'sh — barcha so'rovlar relative yo'l orqali
+  # Netlify proxy qoidalari orqali backend ga yo'naltiriladi
+  VITE_API_BASE_URL = ""
+
+# ─── API Proxy — Mixed Content yechimi ──────────────────────────────────────
+# HTTPS frontenddan HTTP backendga Netlify server-side proxy orqali
+# Brauzer faqat HTTPS ko'radi → Mixed Content xatosi yo'q
+
+[[redirects]]
+  from   = "/api/*"
+  to     = "http://169.58.72.177/api/:splat"
+  status = 200
+  force  = true
+
+[[redirects]]
+  from   = "/auth/*"
+  to     = "http://169.58.72.177/auth/:splat"
+  status = 200
+  force  = true
+
+[[redirects]]
+  from   = "/centers/*"
+  to     = "http://169.58.72.177/centers/:splat"
+  status = 200
+  force  = true
+
+[[redirects]]
+  from   = "/courses/*"
+  to     = "http://169.58.72.177/courses/:splat"
+  status = 200
+  force  = true
+
+[[redirects]]
+  from   = "/quizzes/*"
+  to     = "http://169.58.72.177/quizzes/:splat"
+  status = 200
+  force  = true
+
+[[redirects]]
+  from   = "/exams/*"
+  to     = "http://169.58.72.177/exams/:splat"
+  status = 200
+  force  = true
+
+[[redirects]]
+  from   = "/ai/*"
+  to     = "http://169.58.72.177/ai/:splat"
+  status = 200
+  force  = true
+
+[[redirects]]
+  from   = "/certificates/*"
+  to     = "http://169.58.72.177/certificates/:splat"
+  status = 200
+  force  = true
+
+[[redirects]]
+  from   = "/chat/*"
+  to     = "http://169.58.72.177/chat/:splat"
+  status = 200
+  force  = true
+
+[[redirects]]
+  from   = "/payments/*"
+  to     = "http://169.58.72.177/payments/:splat"
+  status = 200
+  force  = true
+
+[[redirects]]
+  from   = "/analytics/*"
+  to     = "http://169.58.72.177/analytics/:splat"
+  status = 200
+  force  = true
+
+[[redirects]]
+  from   = "/reviews/*"
+  to     = "http://169.58.72.177/reviews/:splat"
+  status = 200
+  force  = true
+
+[[redirects]]
+  from   = "/notifications/*"
+  to     = "http://169.58.72.177/notifications/:splat"
+  status = 200
+  force  = true
+
+[[redirects]]
+  from   = "/users/*"
+  to     = "http://169.58.72.177/users/:splat"
+  status = 200
+  force  = true
+
+[[redirects]]
+  from   = "/reports/*"
+  to     = "http://169.58.72.177/reports/:splat"
+  status = 200
+  force  = true
+
+[[redirects]]
+  from   = "/teachers/*"
+  to     = "http://169.58.72.177/teachers/:splat"
+  status = 200
+  force  = true
+
+[[redirects]]
+  from   = "/students/*"
+  to     = "http://169.58.72.177/students/:splat"
+  status = 200
+  force  = true
+
+# ─── SPA fallback (eng oxirida — React Router uchun) ────────────────────────
+[[redirects]]
+  from   = "/*"
+  to     = "/index.html"
+  status = 200
