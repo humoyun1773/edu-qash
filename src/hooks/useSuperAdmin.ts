@@ -22,23 +22,15 @@ export interface TenantItem {
 
 export type UpdateGlobalSettingsPayload = Partial<GlobalSettings>;
 
-const MOCK_LOGS: SystemLogItem[] = [
-  { id: 'l1', level: 'info', message: 'System updated successfully', timestamp: 'Hozir' }
-];
-
-const MOCK_SETTINGS: GlobalSettings = {
+const DEFAULT_SETTINGS: GlobalSettings = {
   siteName: 'Eduqash Platform',
   maintenanceMode: false,
   allowRegistrations: true
 };
 
-const MOCK_TENANTS: TenantItem[] = [
-  { id: 't1', name: 'Tashkent Branch', subdomain: 'tashkent', status: 'active' }
-];
-
 export const useSuperAdmin = () => {
   const [logs, setLogs] = useState<SystemLogItem[]>([]);
-  const [settings, setSettings] = useState<GlobalSettings | null>(null);
+  const [settings, setSettings] = useState<GlobalSettings | null>(DEFAULT_SETTINGS);
   const [tenants, setTenants] = useState<TenantItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -47,9 +39,9 @@ export const useSuperAdmin = () => {
     setLoading(true);
     setError(null);
     try {
-      setLogs(MOCK_LOGS);
-      setSettings(MOCK_SETTINGS);
-      setTenants(MOCK_TENANTS);
+      setLogs([]);
+      setSettings(DEFAULT_SETTINGS);
+      setTenants([]);
     } catch (err: any) {
       setError(err.message || 'Super Admin ma\'lumotlarini yuklashda xatolik');
     } finally {
@@ -63,20 +55,27 @@ export const useSuperAdmin = () => {
 
   const updateSettings = async (payload: UpdateGlobalSettingsPayload) => {
     try {
-      const updated = { ...MOCK_SETTINGS, ...payload };
+      const updated = { ...DEFAULT_SETTINGS, ...settings, ...payload };
       setSettings(updated);
       return updated;
     } catch (err: any) {
-      setError(err.message || 'Sozlamalarni yangilashda xatolik');
+      setError(err.message || 'Tizim sozlamalarini yangilashda xatolik');
       throw err;
     }
   };
 
-  const deleteTenant = async (id: string) => {
+  const createTenant = async (tenant: { name: string; subdomain: string }) => {
     try {
-      setTenants(prev => prev.filter(t => t.id !== id));
+      const newTenant: TenantItem = {
+        id: `tenant_${Date.now()}`,
+        name: tenant.name,
+        subdomain: tenant.subdomain,
+        status: 'active'
+      };
+      setTenants(prev => [newTenant, ...prev]);
+      return newTenant;
     } catch (err: any) {
-      setError(err.message || "Tenantni o'chirishda xatolik");
+      setError(err.message || 'Tashkilot yaratishda xatolik');
       throw err;
     }
   };
@@ -87,8 +86,8 @@ export const useSuperAdmin = () => {
     tenants,
     loading,
     error,
-    refetch: fetchSuperAdminData,
     updateSettings,
-    deleteTenant
+    createTenant,
+    refetch: fetchSuperAdminData
   };
 };

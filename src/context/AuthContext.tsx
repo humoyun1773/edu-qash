@@ -156,8 +156,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(MOCK_USERS.guest);
     } else {
       setIsAuthenticated(true);
-      const mockUser = MOCK_USERS[newRole];
-      setUser(mockUser || { ...MOCK_USERS.student, role: newRole, name: `Demo (${newRole})` });
+      setUser({
+        id: `usr_${newRole}`,
+        name: `Foydalanuvchi (${newRole.replace('_', ' ')})`,
+        email: `${newRole}@eduqash.uz`,
+        phone: '+998 90 123 45 67',
+        role: newRole,
+        isVerified: true,
+        createdAt: 'Hozir'
+      });
     }
   };
 

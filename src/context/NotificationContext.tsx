@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { notificationsApi } from '../services/notificationsApi';
 
 export interface AppNotification {
   id: string;
@@ -12,44 +13,39 @@ export interface AppNotification {
 interface NotificationContextType {
   notifications: AppNotification[];
   unreadCount: number;
-  markAllAsRead: () => void;
+  loading: boolean;
+  markAllAsRead: () => Promise<void>;
   addNotification: (notif: Omit<AppNotification, 'id' | 'date' | 'read'>) => void;
+  refetch: () => Promise<void>;
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [notifications, setNotifications] = useState<AppNotification[]>([
-    {
-      id: 'n1',
-      title: 'Telegram Bot Ulangan!',
-      message: '@EduqashBot rasmiy boti bilan hisobingiz muvaffaqiyatli bog‘landi.',
-      type: 'telegram',
-      date: 'Bugun 10:15',
-      read: false
-    },
-    {
-      id: 'n2',
-      title: 'IELTS Writing Natijasi',
-      message: 'Writing Task 2 inshoingiz AI yordamida baholandi. Band: 7.5.',
-      type: 'system',
-      date: 'Kecha 18:30',
-      read: false
-    },
-    {
-      id: 'n3',
-      title: 'SMS Kod Yuborildi',
-      message: 'SMS verification code sent to +998 99 *** 65 43',
-      type: 'sms',
-      date: '2 kun oldin',
-      read: true
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const fetchNotifications = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await notificationsApi.getNotifications();
+      setNotifications(data);
+    } catch {
+      setNotifications([]);
+    } finally {
+      setLoading(false);
     }
-  ]);
+  }, []);
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
-  const markAllAsRead = () => {
+  const markAllAsRead = async () => {
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    await notificationsApi.markAllAsRead();
   };
 
   const addNotification = (notif: Omit<AppNotification, 'id' | 'date' | 'read'>) => {
@@ -63,7 +59,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   };
 
   return (
-    <NotificationContext.Provider value={{ notifications, unreadCount, markAllAsRead, addNotification }}>
+    <NotificationContext.Provider value={{ notifications, unreadCount, loading, markAllAsRead, addNotification, refetch: fetchNotifications }}>
       {children}
     </NotificationContext.Provider>
   );

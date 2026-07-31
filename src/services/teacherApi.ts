@@ -65,5 +65,13 @@ export const teacherApi = {
     } catch {
       return { totalStudents: 0, totalQuizzes: 0, averageScore: 0 };
     }
+  },
+
+  getCourseStats: async () => {
+    try {
+      return await api.get(API_ENDPOINTS.TEACHER.STATS);
+    } catch {
+      return { totalStudents: 0, totalQuizzes: 0, averageScore: 0 };
+    }
   }
 };

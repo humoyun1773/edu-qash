@@ -61,7 +61,8 @@ export const useTeacher = () => {
       }));
       setStudents(mappedStudents);
       setSchedule(schData);
-      setStats(statData.map((st: any) => ({ courseName: st.label, studentsCount: typeof st.value === 'number' ? st.value : 0, avgRating: 5.0 })));
+      const statList = Array.isArray(statData) ? statData : [];
+      setStats(statList.map((st: any) => ({ courseName: st.label || 'Kurs', studentsCount: typeof st.value === 'number' ? st.value : 0, avgRating: 5.0 })));
       setCached(CACHE_KEY_STUDENTS, mappedStudents);
       setCached(CACHE_KEY_SCHEDULE, schData);
     } catch (err: any) {

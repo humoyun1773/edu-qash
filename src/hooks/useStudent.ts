@@ -3,7 +3,6 @@ import { coursesApi } from '../services/coursesApi';
 import { examsApi } from '../services/examsApi';
 import type { Course, CertificateItem, QuizResult, User } from '../types';
 import { getCached, setCached } from './useLocalCache';
-import { MOCK_RESULTS } from '../data/mockData';
 
 export type StudentEnrolledCourse = Course;
 export type StudentTestResultItem = QuizResult;
@@ -16,7 +15,7 @@ const CACHE_KEY_RESULTS = 'student_results';
 export const useStudent = () => {
   const [courses, setCourses] = useState<StudentEnrolledCourse[]>(() => getCached<StudentEnrolledCourse[]>(CACHE_KEY_COURSES, []));
   const [certificates, setCertificates] = useState<CertificateItem[]>(() => getCached<CertificateItem[]>(CACHE_KEY_CERTS, []));
-  const [results, setResults] = useState<StudentTestResultItem[]>(() => getCached<StudentTestResultItem[]>(CACHE_KEY_RESULTS, MOCK_RESULTS));
+  const [results, setResults] = useState<StudentTestResultItem[]>(() => getCached<StudentTestResultItem[]>(CACHE_KEY_RESULTS, []));
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const fetchedRef = useRef(false);
@@ -33,10 +32,10 @@ export const useStudent = () => {
       ]);
       setCourses(cData);
       setCertificates(certData);
-      setResults(MOCK_RESULTS);
+      setResults([]);
       setCached(CACHE_KEY_COURSES, cData);
       setCached(CACHE_KEY_CERTS, certData);
-      setCached(CACHE_KEY_RESULTS, MOCK_RESULTS);
+      setCached(CACHE_KEY_RESULTS, []);
     } catch (err: any) {
       setError(err.message || "Talaba ma'lumotlarini yuklashda xatolik");
     } finally {
@@ -63,7 +62,7 @@ export const useStudent = () => {
     results,
     loading,
     error,
-    refetch: () => fetchStudentData(true),
-    updateProfile
+    updateProfile,
+    refetch: () => fetchStudentData(true)
   };
 };
