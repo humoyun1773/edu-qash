@@ -18,10 +18,16 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ searchQuery, setSearch
       <div className="absolute top-1/2 left-5 w-72 h-72 bg-pink-500/15 dark:bg-pink-500/20 rounded-full blur-[110px] pointer-events-none animate-float-reverse" />
 
       <div className="relative z-10 text-center space-y-8 max-w-4xl mx-auto">
+        {/* Top Hero Badge */}
+        <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 border border-indigo-500/30 text-indigo-600 dark:text-indigo-300 text-xs font-black uppercase tracking-wider shadow-lg shadow-indigo-500/10 mb-2 animate-bounce">
+          <Sparkles className="w-4 h-4 text-indigo-500 animate-pulse" />
+          <span>Eduqash — O'zbekistondagi №1 Ta'lim va Imtihon Platformasi</span>
+        </div>
+
         {/* Main Title */}
         <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight leading-[1.08] text-slate-900 dark:text-white font-display animate-fade-up">
           Bilim Oling, O‘quv Markazlarni Toping va{' '}
-          <span className="text-gradient drop-shadow-sm">
+          <span className="bg-gradient-to-r from-sky-400 via-indigo-500 to-purple-500 dark:from-sky-300 dark:via-sky-200 dark:to-indigo-300 bg-clip-text text-transparent font-black drop-shadow-sm">
             Xalqaro Sertifikatlarga
           </span>{' '}
           Ega Bo‘ling
@@ -55,9 +61,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ searchQuery, setSearch
           </div>
         </div>
 
-        {/* Quick Stats Grid with Entrance Animations */}
+        {/* Quick Stats Grid with Entrance & Glowing Light Animations */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-10 border-t border-slate-200/80 dark:border-slate-800/80 animate-fade-up-delayed-3">
-          <div className="p-5 rounded-3xl bg-white/70 dark:bg-slate-900/50 backdrop-blur-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-xl hover:border-indigo-500/40 hover:scale-105 hover:-translate-y-2 transition-all duration-300 text-center group cursor-pointer">
+          <div className="card-glowing-light card-shimmer p-5 rounded-3xl bg-white/70 dark:bg-slate-900/50 backdrop-blur-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-xl hover:border-indigo-500/40 hover:scale-105 hover:-translate-y-2 transition-all duration-300 text-center group cursor-pointer">
             <div className="w-10 h-10 rounded-2xl bg-indigo-500/10 text-indigo-500 mx-auto flex items-center justify-center mb-3 group-hover:scale-110 group-hover:rotate-6 transition-transform">
               <Zap className="w-5 h-5" />
             </div>
@@ -65,7 +71,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ searchQuery, setSearch
             <div className="text-xs text-slate-500 dark:text-slate-400 font-bold mt-1">Nufuzli O‘quv Markazlar</div>
           </div>
 
-          <div className="p-5 rounded-3xl bg-white/70 dark:bg-slate-900/50 backdrop-blur-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-xl hover:border-purple-500/40 hover:scale-105 hover:-translate-y-2 transition-all duration-300 text-center group cursor-pointer">
+          <div className="card-glowing-light card-shimmer p-5 rounded-3xl bg-white/70 dark:bg-slate-900/50 backdrop-blur-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-xl hover:border-purple-500/40 hover:scale-105 hover:-translate-y-2 transition-all duration-300 text-center group cursor-pointer">
             <div className="w-10 h-10 rounded-2xl bg-purple-500/10 text-purple-500 mx-auto flex items-center justify-center mb-3 group-hover:scale-110 group-hover:-rotate-6 transition-transform">
               <ShieldCheck className="w-5 h-5" />
             </div>
@@ -73,7 +79,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ searchQuery, setSearch
             <div className="text-xs text-slate-500 dark:text-slate-400 font-bold mt-1">Faol Talabalar</div>
           </div>
 
-          <div className="p-5 rounded-3xl bg-white/70 dark:bg-slate-900/50 backdrop-blur-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-xl hover:border-amber-500/40 hover:scale-105 hover:-translate-y-2 transition-all duration-300 text-center group cursor-pointer">
+          <div className="card-glowing-light card-shimmer p-5 rounded-3xl bg-white/70 dark:bg-slate-900/50 backdrop-blur-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-xl hover:border-amber-500/40 hover:scale-105 hover:-translate-y-2 transition-all duration-300 text-center group cursor-pointer">
             <div className="w-10 h-10 rounded-2xl bg-amber-500/10 text-amber-500 mx-auto flex items-center justify-center mb-3 group-hover:scale-110 group-hover:rotate-6 transition-transform">
               <Sparkles className="w-5 h-5" />
             </div>
@@ -81,7 +87,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ searchQuery, setSearch
             <div className="text-xs text-slate-500 dark:text-slate-400 font-bold mt-1">O‘rtacha IELTS Natija</div>
           </div>
 
-          <div className="p-5 rounded-3xl bg-white/70 dark:bg-slate-900/50 backdrop-blur-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-xl hover:border-emerald-500/40 hover:scale-105 hover:-translate-y-2 transition-all duration-300 text-center group cursor-pointer">
+          <div className="card-glowing-light card-shimmer p-5 rounded-3xl bg-white/70 dark:bg-slate-900/50 backdrop-blur-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-xl hover:border-emerald-500/40 hover:scale-105 hover:-translate-y-2 transition-all duration-300 text-center group cursor-pointer">
             <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 text-emerald-500 mx-auto flex items-center justify-center mb-3 group-hover:scale-110 group-hover:-rotate-6 transition-transform">
               <Award className="w-5 h-5" />
             </div>

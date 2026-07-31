@@ -152,11 +152,11 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({ onSearch }) =>
             )}
           </div>
 
-          {/* Dark/Light Theme Toggle */}
+          {/* Theme Toggle Button */}
           <button
             type="button"
             onClick={toggleTheme}
-            className="p-2.5 rounded-2xl bg-slate-100/80 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700 transition-all text-xs font-bold active:scale-95"
+            className="theme-toggle-btn p-2.5 rounded-2xl bg-slate-100/80 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700 transition-all duration-300 hover:scale-110 text-xs font-bold active:scale-95 cursor-pointer shadow-sm"
             title={theme === 'dark' ? 'Light Rejimga o‘tish' : 'Dark Rejimga o‘tish'}
           >
             {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-600" />}

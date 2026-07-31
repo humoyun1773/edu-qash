@@ -86,39 +86,37 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     <ToastContext.Provider value={{ toast, confirm }}>
       {children}
 
-      {/* Toast Notifications Container */}
+      {/* Toast Notifications Container (ALL TOASTS UNIFIED BLUE THEME) */}
       <div className="fixed top-5 right-5 z-[9999] flex flex-col gap-3 max-w-sm w-full pointer-events-none px-4 sm:px-0">
         {toasts.map((item) => (
           <div
             key={item.id}
-            className={`pointer-events-auto flex items-start gap-3 p-4 rounded-2xl shadow-xl border backdrop-blur-md transition-all duration-300 transform translate-y-0 animate-in fade-in slide-in-from-top-5 ${
-              item.type === 'success'
-                ? 'bg-emerald-500/10 dark:bg-emerald-950/40 border-emerald-500/30 text-emerald-900 dark:text-emerald-200'
-                : item.type === 'error'
-                ? 'bg-rose-500/10 dark:bg-rose-950/40 border-rose-500/30 text-rose-900 dark:text-rose-200'
-                : item.type === 'warning'
-                ? 'bg-amber-500/10 dark:bg-amber-950/40 border-amber-500/30 text-amber-900 dark:text-amber-200'
-                : 'bg-indigo-500/10 dark:bg-indigo-950/40 border-indigo-500/30 text-indigo-900 dark:text-indigo-200'
-            }`}
+            className="pointer-events-auto relative overflow-hidden flex items-start gap-3 p-4 rounded-2xl shadow-2xl border backdrop-blur-xl transition-all duration-300 transform animate-toast-in bg-blue-500/10 dark:bg-blue-950/60 border-blue-500/40 text-blue-950 dark:text-blue-100 shadow-blue-500/15"
           >
             <div className="flex-shrink-0 mt-0.5">
-              {item.type === 'success' && <CheckCircle2 className="w-5 h-5 text-emerald-500" />}
-              {item.type === 'error' && <AlertCircle className="w-5 h-5 text-rose-500" />}
-              {item.type === 'warning' && <AlertTriangle className="w-5 h-5 text-amber-500" />}
-              {item.type === 'info' && <Info className="w-5 h-5 text-indigo-500" />}
+              {item.type === 'success' && <CheckCircle2 className="w-5 h-5 text-blue-500 animate-bounce" />}
+              {item.type === 'error' && <AlertCircle className="w-5 h-5 text-blue-500 animate-pulse" />}
+              {item.type === 'warning' && <AlertTriangle className="w-5 h-5 text-blue-500 animate-pulse" />}
+              {item.type === 'info' && <Info className="w-5 h-5 text-blue-500 animate-pulse" />}
             </div>
 
-            <div className="flex-1 min-w-0">
-              {item.title && <h4 className="text-xs font-bold uppercase tracking-wider mb-0.5">{item.title}</h4>}
+            <div className="flex-1 min-w-0 pr-2">
+              {item.title && <h4 className="text-xs font-black uppercase tracking-wider mb-0.5 font-display text-blue-600 dark:text-blue-300">{item.title}</h4>}
               <p className="text-xs font-semibold leading-relaxed break-words">{item.message}</p>
             </div>
 
             <button
               onClick={() => removeToast(item.id)}
-              className="flex-shrink-0 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors p-1 rounded-lg hover:bg-slate-200/50 dark:hover:bg-slate-800/50"
+              className="flex-shrink-0 text-blue-400 hover:text-blue-700 dark:hover:text-white transition-all p-1 rounded-xl hover:bg-blue-200/50 dark:hover:bg-blue-900/50 active:scale-90 cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
+
+            {/* Bottom Progress Bar (BLUE) */}
+            <div
+              className="absolute bottom-0 left-0 h-1 animate-toast-progress bg-blue-500"
+              style={{ animationDuration: `${item.duration || 4000}ms` }}
+            />
           </div>
         ))}
       </div>
