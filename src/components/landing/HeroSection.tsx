@@ -34,25 +34,28 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ searchQuery, setSearch
 
         {/* Global Search Bar */}
         <div className="max-w-2xl mx-auto pt-2 animate-fade-up-delayed-2">
-          <div className="p-2.5 flex flex-col sm:flex-row items-center gap-2.5 bg-white/90 dark:bg-slate-900/80 backdrop-blur-2xl border border-slate-200/90 dark:border-slate-800 rounded-3xl shadow-2xl focus-within:border-indigo-500/60 focus-within:ring-4 focus-within:ring-indigo-500/10 transition-all hover:border-indigo-500/40">
+          <form
+            onSubmit={(e) => { e.preventDefault(); openAuthModal('register'); }}
+            className="p-2.5 flex flex-col sm:flex-row items-center gap-2.5 bg-white/90 dark:bg-slate-900/80 backdrop-blur-2xl border border-slate-200/90 dark:border-slate-800 rounded-3xl shadow-2xl focus-within:border-indigo-500/60 focus-within:ring-4 focus-within:ring-indigo-500/10 transition-all hover:border-indigo-500/40"
+          >
             <div className="relative w-full flex items-center">
               <Search className="w-5 h-5 text-indigo-500 dark:text-indigo-400 absolute left-4 pointer-events-none" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Kurslar, O‘quv markazlar, Ustozlar..."
+                placeholder="Kurslar, O'quv markazlar, Ustozlar..."
                 className="w-full bg-transparent pl-12 pr-4 py-3 text-sm font-semibold text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none"
               />
             </div>
-            <button 
-              onClick={() => openAuthModal('register')}
+            <button
+              type="submit"
               className="w-full sm:w-auto py-3.5 px-8 rounded-2xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-extrabold text-sm whitespace-nowrap shadow-lg shadow-indigo-500/30 active:scale-95 transition-all flex items-center justify-center gap-2 group cursor-pointer"
             >
               <span>Qidirish</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </button>
-          </div>
+          </form>
         </div>
 
         {/* Quick Stats Grid with Entrance & Glowing Light Animations */}

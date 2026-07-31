@@ -227,7 +227,7 @@ export const CoursesPage: React.FC = () => {
             </div>
 
             {/* Promo Code Input */}
-            <div className="flex items-center gap-2">
+            <form className="flex items-center gap-2" onSubmit={(e) => { e.preventDefault(); setDiscountApplied(true); }}>
               <input
                 type="text"
                 placeholder="Promokod (masalan: EDU2026)"
@@ -236,13 +236,12 @@ export const CoursesPage: React.FC = () => {
                 className="flex-1 bg-slate-100 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 dark:text-white uppercase focus:outline-none focus:border-indigo-500 font-bold placeholder-slate-400"
               />
               <button
-                type="button"
-                onClick={() => setDiscountApplied(true)}
+                type="submit"
                 className="py-2.5 px-4 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 hover:bg-slate-300 dark:hover:bg-slate-700 text-xs font-bold transition-all"
               >
                 Qo‘llash
               </button>
-            </div>
+            </form>
 
             {/* Price Summary */}
             <div className="p-4 rounded-2xl bg-slate-100 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 space-y-2 text-xs">
