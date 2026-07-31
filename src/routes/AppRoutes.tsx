@@ -1,6 +1,6 @@
-import React, { Suspense, useState, useEffect } from 'react';
+import React, { Suspense, useState, useEffect, useContext } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { AuthContext } from '../context/AuthContext';
 
 import { Navbar } from '../components/common/Navbar';
 import { Footer } from '../components/common/Footer';
@@ -26,15 +26,16 @@ import { LeaderboardPage } from '../pages/leaderboard/LeaderboardPage';
 import { CertificateVerifyPage } from '../pages/certificates/CertificateVerifyPage';
 
 const DashboardRedirector: React.FC = () => {
-  const { role } = useAuth();
+  const auth = useContext(AuthContext);
+  const role = auth?.role;
   switch (role) {
-    case 'student':      return <StudentDashboardPage />;
-    case 'teacher':      return <TeacherDashboardPage />;
-    case 'moderator':    return <ModeratorDashboardPage />;
-    case 'center_owner': return <CenterOwnerDashboardPage />;
+    case 'student':      return <Navigate to="/dashboard/student" replace />;
+    case 'teacher':      return <Navigate to="/dashboard/teacher" replace />;
+    case 'moderator':    return <Navigate to="/dashboard/moderator" replace />;
+    case 'center_owner': return <Navigate to="/dashboard/center-owner" replace />;
     case 'admin':
-    case 'super_admin':
-    default:             return <AdminDashboardPage />;
+    case 'super_admin':  return <Navigate to="/dashboard/admin" replace />;
+    default:             return <Navigate to="/dashboard/admin" replace />;
   }
 };
 

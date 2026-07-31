@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
-  GraduationCap, Search, Bell, Sun, Moon, Home, LogOut, ChevronDown, X, Shield
+  GraduationCap, Search, Bell, Sun, Moon, LogOut, ChevronDown, X, Shield, Eye
 } from 'lucide-react';
 import { useAuth } from '../../../context/AuthContext';
 import { useTheme } from '../../../context/ThemeContext';
 import type { UserRole } from '../../../types';
+import { ImagePreviewModal } from '../../../components/common/ImagePreviewModal';
 
 interface DashboardHeaderProps {
   onSearch?: (query: string) => void;
@@ -19,6 +20,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({ onSearch }) =>
   const [searchQuery, setSearchQuery] = useState('');
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -165,16 +167,6 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({ onSearch }) =>
             {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-600" />}
           </button>
 
-          {/* Home Link */}
-          <Link 
-            to="/" 
-            className="p-2.5 rounded-2xl bg-slate-100/80 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700 transition-all text-xs font-bold flex items-center gap-1.5 active:scale-95" 
-            title="Bosh sahifaga o‘tish"
-          >
-            <Home className="w-4 h-4 text-indigo-500" /> 
-            <span className="hidden xl:inline">Bosh Sahifa</span>
-          </Link>
-
           {/* USER / ROLE BUTTON WITH DROPDOWN MENU */}
           <div className="relative" ref={dropdownRef}>
             <button
@@ -186,10 +178,15 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({ onSearch }) =>
                 <img 
                   src={user.avatar} 
                   alt={user.name || roleMeta.label} 
-                  className="w-7 h-7 rounded-xl object-cover border border-indigo-500/50 shrink-0 shadow-sm" 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsPreviewOpen(true);
+                  }}
+                  title="Rasmni kattalashtirib ko'rish"
+                  className="w-8 h-8 rounded-xl object-cover border-2 border-indigo-500/60 shrink-0 shadow-sm hover:scale-110 hover:ring-2 hover:ring-indigo-400 transition-all cursor-pointer" 
                 />
               ) : (
-                <div className="w-7 h-7 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-600 text-white flex items-center justify-center font-black text-xs shrink-0 shadow-sm">
+                <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-600 text-white flex items-center justify-center font-black text-xs shrink-0 shadow-sm">
                   {user?.name ? user.name.charAt(0).toUpperCase() : <Shield className="w-3.5 h-3.5" />}
                 </div>
               )}
@@ -212,7 +209,12 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({ onSearch }) =>
                 <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-950/70 border border-slate-100 dark:border-slate-800 mb-2">
                   <div className="flex items-center gap-2.5">
                     {user?.avatar ? (
-                      <img src={user.avatar} alt="User" className="w-9 h-9 rounded-xl object-cover border border-indigo-500/40" />
+                      <div className="relative group/avatar cursor-pointer" onClick={() => setIsPreviewOpen(true)} title="Kattalashtirish">
+                        <img src={user.avatar} alt="User" className="w-10 h-10 rounded-xl object-cover border-2 border-indigo-500/50 group-hover/avatar:scale-105 transition-transform" />
+                        <div className="absolute inset-0 bg-black/40 rounded-xl opacity-0 group-hover/avatar:opacity-100 flex items-center justify-center transition-opacity text-white">
+                          <Eye className="w-3.5 h-3.5" />
+                        </div>
+                      </div>
                     ) : (
                       <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-600 text-white flex items-center justify-center font-black text-sm">
                         {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
@@ -253,6 +255,16 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({ onSearch }) =>
 
         </div>
       </div>
+
+      {/* Ant Design Style Image Preview Modal */}
+      {user?.avatar && (
+        <ImagePreviewModal
+          src={user.avatar}
+          alt={user?.name || 'Foydalanuvchi rasmi'}
+          isOpen={isPreviewOpen}
+          onClose={() => setIsPreviewOpen(false)}
+        />
+      )}
     </header>
   );
 };

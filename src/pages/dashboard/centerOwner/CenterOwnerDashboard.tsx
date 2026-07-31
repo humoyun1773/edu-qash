@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { 
   Building2, 
   Users, 
@@ -32,7 +33,10 @@ import { useToast } from '../../../context/ToastContext';
 
 export const CenterOwnerDashboard: React.FC = () => {
   const { toast, confirm } = useToast();
-  const [ownerTab, setOwnerTab] = useState<CenterOwnerTabType>('profile_edit');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const ownerTab = (searchParams.get('tab') as CenterOwnerTabType) || 'profile_edit';
+  const setOwnerTab = (tab: CenterOwnerTabType) => setSearchParams({ tab });
+
   const { profile, teachers, revenue, updateProfile, addTeacher, removeTeacher } = useCenterOwner();
 
   // Modal State

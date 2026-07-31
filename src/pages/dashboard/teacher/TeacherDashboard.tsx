@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { 
   Users, 
   Plus, 
@@ -20,7 +21,10 @@ import { getTeacherTabs, type TeacherTabType } from './teacherTabs';
 type QuizCategory = 'IELTS' | 'SAT' | 'CEFR' | 'General';
 
 export const TeacherDashboard: React.FC = () => {
-  const [teacherTab, setTeacherTab] = useState<TeacherTabType>('students');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const teacherTab = (searchParams.get('tab') as TeacherTabType) || 'students';
+  const setTeacherTab = (tab: TeacherTabType) => setSearchParams({ tab });
+
   const { students: studentsList, schedule: scheduleList, quizzes: quizzesList, loading, createQuiz } = useTeacher();
 
   // Modal & Async Loading States

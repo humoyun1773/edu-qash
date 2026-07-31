@@ -1,4 +1,4 @@
-import { api, setAuthToken, removeAuthToken } from './api';
+import { api, setAuthToken, removeAuthToken, getAuthToken, API_BASE_URL } from './api';
 import type { User, UserRole } from '../types';
 import { API_ENDPOINTS } from '../api/apiEndpoints';
 
@@ -139,6 +139,38 @@ export const authApi = {
     if (data.phone !== undefined) payload.phone = data.phone;
 
     const res = await api.patch<any>(API_ENDPOINTS.AUTH.PROFILE, payload);
+    return mapBackendUser(res.user || res);
+  },
+
+  /**
+   * Avatar yuklash — multipart/form-data bilan PATCH /auth/profile/
+   * Swagger: PatchedUserRequest.avatar { type: string, format: binary, nullable: true }
+   */
+  uploadAvatar: async (file: File): Promise<User> => {
+    const token = getAuthToken();
+    const baseUrl = API_BASE_URL;
+
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    const cleanBase = baseUrl ? baseUrl.replace(/\/$/, '') : '';
+    const url = `${cleanBase}/auth/profile/`;
+
+    const response = await fetch(url, {
+      method: 'PATCH',
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        // Content-Type ni fetch o'zi FormData uchun multipart/form-data qilib qo'yadi
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({ message: response.statusText }));
+      throw new Error(err.detail || err.message || `Avatar yuklashda xatolik: ${response.status}`);
+    }
+
+    const res = await response.json();
     return mapBackendUser(res.user || res);
   },
 

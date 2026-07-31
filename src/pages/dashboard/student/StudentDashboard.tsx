@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { 
   BookOpen, 
   Award, 
@@ -13,7 +13,7 @@ import {
   ArrowRight,
   TrendingUp
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useStudent } from '../../../hooks/useStudent';
 import { DashboardSidebar } from '../common/DashboardSidebar';
 import { DashboardSettings } from '../DashboardSettings';
@@ -21,7 +21,10 @@ import { getStudentTabs, type StudentTabType } from './studentTabs';
 import { PageLoader } from '../../../components/common/PageLoader';
 
 export const StudentDashboard: React.FC = () => {
-  const [studentTab, setStudentTab] = useState<StudentTabType>('courses');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const studentTab = (searchParams.get('tab') as StudentTabType) || 'courses';
+  const setStudentTab = (tab: StudentTabType) => setSearchParams({ tab });
+
   const { courses, certificates, results, loading } = useStudent();
 
   const studentTabs = getStudentTabs(courses?.length || 0, certificates?.length || 0);

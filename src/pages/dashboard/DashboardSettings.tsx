@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { User, Lock, Bell, Moon, Sun, Shield, Save, CheckCircle2, Loader2, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { User, Lock, Bell, Moon, Sun, Shield, Save, CheckCircle2, Loader2, AlertCircle, Camera } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { authApi } from '../../services/authApi';
+import { ImagePreviewModal } from '../../components/common/ImagePreviewModal';
 
 type SubTabType = 'profile' | 'security' | 'notifications' | 'preferences';
 
@@ -26,6 +27,13 @@ export const DashboardSettings: React.FC = () => {
   const [activeSubTab, setActiveSubTab] = useState<SubTabType>('profile');
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Avatar upload states
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarError, setAvatarError] = useState<string | null>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   // Profile Form States
   const [name, setName] = useState(user?.name || '');
@@ -51,8 +59,47 @@ export const DashboardSettings: React.FC = () => {
       setUsername(user.username || '');
       setEmail(user.email || '');
       if (user.phone) setPhone(user.phone);
+      // Avatar preview reset when user changes
+      setAvatarPreview(null);
     }
   }, [user]);
+
+  // Handle avatar file selection
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate: max 2MB, only images
+    if (file.size > 2 * 1024 * 1024) {
+      setAvatarError("Rasm hajmi 2MB dan oshmasligi kerak!");
+      return;
+    }
+    if (!file.type.startsWith('image/')) {
+      setAvatarError("Faqat rasm fayllari qabul qilinadi (PNG, JPG, WEBP)!");
+      return;
+    }
+
+    setAvatarError(null);
+    const reader = new FileReader();
+    reader.onloadend = () => setAvatarPreview(reader.result as string);
+    reader.readAsDataURL(file);
+  };
+
+  // Upload avatar immediately on file select
+  const handleAvatarUpload = async (file: File) => {
+    setAvatarUploading(true);
+    setAvatarError(null);
+    try {
+      const updatedUser = await authApi.uploadAvatar(file);
+      updateUser(updatedUser);
+      setSavedSuccess(true);
+      setTimeout(() => setSavedSuccess(false), 3000);
+    } catch (err: any) {
+      setAvatarError(err?.message || "Rasmni yuklashda xatolik yuz berdi.");
+    } finally {
+      setAvatarUploading(false);
+    }
+  };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -135,26 +182,72 @@ export const DashboardSettings: React.FC = () => {
         {/* PROFILE TAB */}
         {activeSubTab === 'profile' && (
           <div className="space-y-4">
-            <div className="flex items-center gap-4 p-4 rounded-2xl bg-slate-100/80 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800">
-              {user?.avatar ? (
+          <div className="flex items-center gap-4 p-4 rounded-2xl bg-slate-100/80 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800">
+            {/* Avatar Preview + Upload Button */}
+            <div className="relative group">
+              {(avatarPreview || user?.avatar) ? (
                 <img
-                  src={user.avatar}
-                  alt={user.name || 'User Avatar'}
-                  className="w-16 h-16 rounded-2xl object-cover border-2 border-indigo-500 shadow-md"
+                  src={avatarPreview || user?.avatar || ''}
+                  alt={user?.name || 'Avatar'}
+                  onClick={() => setIsPreviewOpen(true)}
+                  title="Rasmni kattalashtirib ko'rish"
+                  className="w-20 h-20 rounded-2xl object-cover border-2 border-indigo-500 shadow-md cursor-pointer hover:scale-105 transition-transform"
                 />
               ) : (
-                <div className="w-16 h-16 rounded-2xl bg-indigo-600/20 text-indigo-500 font-black text-xl flex items-center justify-center border-2 border-indigo-500">
+                <div className="w-20 h-20 rounded-2xl bg-indigo-600/20 text-indigo-500 font-black text-2xl flex items-center justify-center border-2 border-indigo-500">
                   {name ? name.charAt(0).toUpperCase() : 'U'}
                 </div>
               )}
-              <div>
-                <span className="block text-xs font-bold text-slate-900 dark:text-white">Profil Rasmi</span>
-                <span className="block text-[11px] text-slate-500 dark:text-slate-400">PNG, JPG formatida max 2MB</span>
-                <button type="button" className="mt-2 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline">
-                  Rasm almashtirish
-                </button>
-              </div>
+
+              {/* Camera overlay */}
+              <button
+                type="button"
+                onClick={() => avatarInputRef.current?.click()}
+                disabled={avatarUploading}
+                className="absolute inset-0 rounded-2xl bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
+              >
+                {avatarUploading
+                  ? <Loader2 className="w-6 h-6 text-white animate-spin" />
+                  : <Camera className="w-6 h-6 text-white" />
+                }
+              </button>
+
+              {/* Hidden file input */}
+              <input
+                ref={avatarInputRef}
+                type="file"
+                accept="image/png,image/jpeg,image/jpg,image/webp"
+                className="hidden"
+                onChange={(e) => {
+                  handleAvatarChange(e);
+                  const file = e.target.files?.[0];
+                  if (file) handleAvatarUpload(file);
+                }}
+              />
             </div>
+
+            <div className="flex-1">
+              <span className="block text-sm font-bold text-slate-900 dark:text-white">Profil Rasmi</span>
+              <span className="block text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">PNG, JPG, WEBP — maksimum 2MB</span>
+              <button
+                type="button"
+                onClick={() => avatarInputRef.current?.click()}
+                disabled={avatarUploading}
+                className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all disabled:opacity-60"
+              >
+                {avatarUploading ? (
+                  <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Yuklanmoqda...</>
+                ) : (
+                  <><Camera className="w-3.5 h-3.5" /> Rasm almashtirish</>
+                )}
+              </button>
+              {avatarError && (
+                <p className="mt-1.5 text-[11px] text-rose-500 font-medium flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3" /> {avatarError}
+                </p>
+              )}
+            </div>
+          </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -342,6 +435,15 @@ export const DashboardSettings: React.FC = () => {
           </button>
         </div>
       </form>
+      {/* Ant Design Style Image Preview Modal */}
+      {(avatarPreview || user?.avatar) && (
+        <ImagePreviewModal
+          src={avatarPreview || user?.avatar || ''}
+          alt={user?.name || 'Avatar'}
+          isOpen={isPreviewOpen}
+          onClose={() => setIsPreviewOpen(false)}
+        />
+      )}
     </div>
   );
 };

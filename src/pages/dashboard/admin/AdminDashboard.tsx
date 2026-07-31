@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { 
   Users, 
   BookOpen, 
@@ -24,7 +25,10 @@ import { useToast } from '../../../context/ToastContext';
 
 export const AdminDashboard: React.FC = () => {
   const { toast, confirm } = useToast();
-  const [adminTab, setAdminTab] = useState<AdminTabType>('users');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const adminTab = (searchParams.get('tab') as AdminTabType) || 'users';
+  const setAdminTab = (tab: AdminTabType) => setSearchParams({ tab });
+
   const { users: usersList, payments: paymentsList, createUser, deleteUser } = useAdminUsers();
   const { courses, createCourse, deleteCourse } = useCourses();
 

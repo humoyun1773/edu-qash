@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { 
   CheckSquare, 
   Loader2, 
@@ -16,7 +17,10 @@ import { DashboardSettings } from '../DashboardSettings';
 import { getModeratorTabs, type ModeratorTabType } from './moderatorTabs';
 
 export const ModeratorDashboard: React.FC = () => {
-  const [moderatorTab, setModeratorTab] = useState<ModeratorTabType>('content');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const moderatorTab = (searchParams.get('tab') as ModeratorTabType) || 'content';
+  const setModeratorTab = (tab: ModeratorTabType) => setSearchParams({ tab });
+
   const [processingId, setProcessingId] = useState<string | null>(null);
 
   const { pendingContent, reports, loading, approveContent, rejectContent } = useModerator();

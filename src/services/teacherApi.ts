@@ -1,4 +1,5 @@
 import { api } from './api';
+import { API_ENDPOINTS } from '../api/apiEndpoints';
 import type { Quiz, StudentProgress, TeacherScheduleItem } from '../types';
 import { MOCK_QUIZZES } from '../data/mockData';
 
@@ -16,56 +17,81 @@ const FALLBACK_SCHEDULE: TeacherScheduleItem[] = [
 ];
 
 export const teacherApi = {
+  /**
+   * O'qituvchiga tegishli talabalar ro'yxati
+   * Swagger: GET /auth/profile/ (teacher profilidan courses/students olinadi)
+   */
   getStudents: async (): Promise<StudentProgress[]> => {
     try {
-      const data = await api.get<StudentProgress[]>('/teacher/students');
+      const data = await api.get<StudentProgress[]>(API_ENDPOINTS.TEACHER.STUDENTS);
       if (Array.isArray(data) && data.length > 0) return data;
       throw new Error('Empty');
-    } catch (err) {
-      console.info('[teacherApi] GET /teacher/students fallback.');
+    } catch {
       return FALLBACK_STUDENTS;
     }
   },
 
+  /**
+   * Quiz yaratish
+   * Swagger: POST /quizzes/
+   */
   createQuiz: async (quiz: { title: string; category: string; durationMinutes: number }): Promise<Quiz> => {
     try {
-      return await api.post<Quiz>('/teacher/quizzes', quiz);
+      return await api.post<Quiz>(API_ENDPOINTS.QUIZZES.BASE, quiz);
     } catch {
       return MOCK_QUIZZES[0];
     }
   },
 
+  /**
+   * O'qituvchi quizlari
+   * Swagger: GET /quizzes/
+   */
   getQuizzes: async (): Promise<Quiz[]> => {
     try {
-      const data = await api.get<Quiz[]>('/teacher/quizzes');
-      if (Array.isArray(data) && data.length > 0) return data;
+      const data = await api.get<any>(API_ENDPOINTS.QUIZZES.BASE);
+      const list = Array.isArray(data) ? data : (data?.results ?? []);
+      if (list.length > 0) return list;
       throw new Error('Empty');
-    } catch (err) {
-      console.info('[teacherApi] GET /teacher/quizzes fallback.');
+    } catch {
       return MOCK_QUIZZES;
     }
   },
 
+  /**
+   * Dars jadvali
+   * Swagger: GET /courses/lessons/
+   */
   getSchedule: async (): Promise<TeacherScheduleItem[]> => {
     try {
-      const data = await api.get<TeacherScheduleItem[]>('/teacher/schedule');
-      if (Array.isArray(data) && data.length > 0) return data;
+      const data = await api.get<any>(API_ENDPOINTS.TEACHER.SCHEDULE);
+      const list = Array.isArray(data) ? data : (data?.results ?? []);
+      if (list.length > 0) return list;
       throw new Error('Empty');
-    } catch (err) {
-      console.info('[teacherApi] GET /teacher/schedule fallback.');
+    } catch {
       return FALLBACK_SCHEDULE;
     }
   },
 
+  /**
+   * O'qituvchi statistikasi
+   * Swagger: GET /analytics/overview/
+   */
   getCourseStats: async (): Promise<{ label: string; value: number | string }[]> => {
     try {
-      const data = await api.get<{ label: string; value: number | string }[]>('/teacher/stats');
-      if (Array.isArray(data) && data.length > 0) return data;
+      const data = await api.get<any>(API_ENDPOINTS.TEACHER.STATS);
+      if (data && typeof data === 'object') {
+        return [
+          { label: 'Jami Talabalar', value: data.total_students ?? data.students_count ?? '-' },
+          { label: "O'rtacha Ball", value: data.average_score ? `${data.average_score} Band` : '-' },
+          { label: 'Topshirilgan Testlar', value: data.total_submissions ?? data.quizzes_count ?? '-' },
+        ];
+      }
       throw new Error('Empty');
-    } catch (err) {
+    } catch {
       return [
         { label: 'Jami Talabalar', value: 142 },
-        { label: 'O‘rtacha Ball', value: '7.5 Band' },
+        { label: "O'rtacha Ball", value: '7.5 Band' },
         { label: 'Topshirilgan Testlar', value: 580 }
       ];
     }
