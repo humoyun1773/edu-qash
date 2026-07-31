@@ -627,4 +627,47 @@ img, video, iframe, canvas, audio {
   animation: lightShimmer 1.2s ease-in-out;
 }
 
+/* Sweeping Multicolor Text Gradient Animation */
+@keyframes animatedGradientText {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.text-gradient-animated {
+  background: linear-gradient(135deg, #38bdf8 0%, #818cf8 25%, #c084fc 50%, #f472b6 75%, #38bdf8 100%);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: animatedGradientText 5s ease infinite;
+}
+
+/* 3D Tilt Card Elevation */
+.card-tilt-3d {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+  transform-style: preserve-3d;
+}
+
+.card-tilt-3d:hover {
+  transform: translateY(-8px) rotateX(2deg) rotateY(-1deg);
+  box-shadow: 0 30px 60px -15px rgba(99, 102, 241, 0.25);
+}
+
+/* Interactive Glow Button */
+.btn-glow-interactive {
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-glow-interactive:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.4);
+}
+
+.btn-glow-interactive:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+
 
